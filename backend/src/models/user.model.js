@@ -21,6 +21,12 @@ const userSchema = new mongoose.Schema({
         required:[true,"Password is required for creating an account"],
         minLength:[6,"Password should contan more than 6 characters"],
         select:false //taaki query se user search krte time pswd count na ho
+    },
+    systemUser:{
+        type:Boolean,
+        default:false,
+        immutable:true, //agr db ka access h to hi isko true/false kr skenge
+        select:false  //jb bhi read krenge to systemUser ka data na aaye, isliye select false
     }
 },{
     timestamps:true

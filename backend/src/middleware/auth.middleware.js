@@ -47,6 +47,6 @@ async function authSystemUserMiddleware(req,res,next) {
     }
 }
 
-module.exports = authMiddleware;
+module.exports = { authMiddleware, authSystemUserMiddleware };
 
 //ye middleware har protected route pe use hoga. Ye token ko verify karega aur user details ko req object me add karega. Agar token valid h to next() call hoga aur request aage badhegi. Agar token invalid h to 401 status code ke sath error message return hoga.

@@ -30,4 +30,3 @@ const accountModel = mongoose.model("account", accountSchema);
 
 module.exports = accountModel;
 
-//account model banaya h jisme user, status, currency fields h. User field se pata chalta h ki ye account kis user se belong krta h. Status field se pata chalta h ki account active h ya frozen ya closed. Currency field se pata chalta h ki account kis currency me h. Timestamps option se createdAt aur updatedAt fields automatically add ho jate h. Compound index create kiya h user aur status fields pe taaki searching fast ho.

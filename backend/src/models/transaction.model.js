@@ -32,3 +32,7 @@ const transactionSchema = new mongoose.Schema({
         unique: true
     }
 }, { timestamps: true });
+
+module.exports = mongoose.model('transaction', transactionSchema);
+
+//ye transaction model hai jisme fromAccount, toAccount, status, amount aur idempotencyKey fields hain. isme se fromAccount aur toAccount account collection ke object id ko reference karte hain. status field me transaction ka status store hota hai jo PENDING, COMPLETED, FAILED ya REVERSED ho sakta hai. amount field me transaction amount store hota hai aur idempotencyKey field me ek unique key store hoti hai jo har transaction ke sath aati hai. timestamps option se createdAt aur updatedAt fields automatically add ho jati hain.

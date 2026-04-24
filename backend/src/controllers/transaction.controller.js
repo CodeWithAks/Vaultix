@@ -54,7 +54,7 @@ async function createInitialFundsTransaction(req, res) {  //ye system user k liy
         amount,
         transaction: transaction._id,
         type:"DEBIT"
-    }], { session });
+    }], { session });   //agr session hoga to data array ki format mei dena hoga
 
     const creditLedgerEntry = await ledgerModel.create([{
         account:toUserAccount._id,

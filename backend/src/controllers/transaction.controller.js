@@ -107,6 +107,8 @@ async function createInitialFundsTransaction(req, res) {  //ye system user k liy
      * 4. Check if the fromAccount has sufficient balance
      */
 
+    const fromAccountBalance = await fromUserAccount.getBalance(); 
+
 
 
     //ab trasnaction create krni h 

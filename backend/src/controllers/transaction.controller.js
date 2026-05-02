@@ -109,11 +109,18 @@ async function createInitialFundsTransaction(req, res) {  //ye system user k liy
 
     const fromAccountBalance = await fromUserAccount.getBalance(); 
 
+    if(fromAccountBalance < amount) {
+        return res.status(400).json({
+            message: `Insufficient balance. Current balance is ${fromAccountBalance}. Requested amount is ${amount}`
+         });
+    }
 
-
-    //ab trasnaction create krni h 
+    /**
+     * 5. Create a new transaction with status "PENDING"
+     */
     const session = await mongoose.startSession();
-    session.startTransaction();
+    session.startTransaction(); //ye hum isiley taaki agr iske baad koi error aata h to hum transaction ko rollback kar sakein, aur data consistency bani rahe
+
 
     const transaction = new transactionModel({
         fromAccount: fromUserAccount._id,
@@ -123,7 +130,11 @@ async function createInitialFundsTransaction(req, res) {  //ye system user k liy
         status: "PENDING",
     });
 
-    //ab ledger entry create krenge
+     await transaction.save({ session });
+
+    /**
+     * 6. Create ledger entries
+     */
     const debitLedgerEntry = await ledgerModel.create([{
         account: fromUserAccount._id,
         amount,
@@ -145,10 +156,21 @@ async function createInitialFundsTransaction(req, res) {  //ye system user k liy
     await session.commitTransaction();
     session.endSession();
 
+    /**
+     * 6. Send email notifications to both parties
+     */
+    await emailService.sendTransactionEmail(req.user.email, req.user.name, amount, toUserAccount._id); 
+
     return res.status(201).json({
-        message: "Initial funds transaction created successfully",
+        message: "Transaction created successfully",
         transactionId: transaction._id
     });
+
+
+    // return res.status(201).json({
+    //     message: "Initial funds transaction created successfully",
+    //     transactionId: transaction._id
+    // });
 }
 
 

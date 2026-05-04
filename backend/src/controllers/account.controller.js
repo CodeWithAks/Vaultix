@@ -22,7 +22,30 @@ async function getAccountController(req,res) {
     })
 }
 
+async function getAccountBalanceController(req,res) {
+    const {accountId} = req.params; //url se account id mil jayega
+
+    const account = await accountModel.findOne({
+        _id:accountId,
+        user:req.user._id //kya ye wahi user ka account hai jo request kar raha hai
+    }) 
+
+    if(!account){
+        return res.status(404).json({
+            message:"Account not found"
+        })
+    }
+
+    const balance = await account.getBalance(); //account model me getBalance method hai, usko call krke balance mil jayega
+
+    res.status(200).json({
+        accountId:account._id,
+        balance:balance
+    })
+}
+
 module.exports = {
     createAccountController,
-    getAccountController
+    getAccountController,
+    getAccountBalanceController
 }

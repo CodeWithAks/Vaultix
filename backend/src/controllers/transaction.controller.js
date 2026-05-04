@@ -6,175 +6,174 @@ const accountModel = require("../models/account.model");
 
 /**
  * - Create a new transaction
- * THE 10-STEP TRANSFER FLOW : 
- * 1. Validate the transfer request (amount, fromAccount, toAccount, idempotencyKey)
- * 2. Check if the fromAccount has sufficient balance
- * 3. Create a new transaction with status "PENDING"
- * 4. Create a debit ledger entry for the fromAccount
- * 5. Create a credit ledger entry for the toAccount
- * 6. Update the transaction status to "COMPLETED"
- * 7. Commit the transaction
- * 8. Send email notifications to both parties
- * 9. Handle errors and rollback if necessary
- * 10. Return the transaction details in the response
+ * THE 10-STEP TRANSFER FLOW:
+     * 1. Validate request
+     * 2. Validate idempotency key
+     * 3. Check account status
+     * 4. Derive sender balance from ledger
+     * 5. Create transaction (PENDING)
+     * 6. Create DEBIT ledger entry
+     * 7. Create CREDIT ledger entry
+     * 8. Mark transaction COMPLETED
+     * 9. Commit MongoDB session
+     * 10. Send email notification
  */
 
+
 async function createTransaction(req, res) {
-    // Step 1: Validate the transfer request
     const { fromAccount, toAccount, amount, idempotencyKey } = req.body;
 
     /**
-     * 1. Validate the request
+     * 1. Validate request
      */
     if (!fromAccount || !toAccount || !amount || !idempotencyKey) {
         return res.status(400).json({ message: "Missing required fields" });
     }
-}
-
-async function createInitialFundsTransaction(req, res) {  //ye system user k liye h jo initial funds transfer karega
-    const { toAccount, amount, idempotencyKey } = req.body;
-
-    if (!toAccount || !amount || !idempotencyKey) {
-        return res.status(400).json({ message: "Missing required fields" });
-    }
-
-    const toUserAccount = await accountModel.findOne({ _id: toAccount }); //user real b h ya ni ?
-    if (!toUserAccount) {
-        return res.status(404).json({ message: "To account not found" });
-    }
-
-    const fromUserAccount = await accountModel.findOne({     //system user ka account mil gya ?
-        systemUser: true,
-        user: req.user._id
-    });
-
-    if (!fromUserAccount || !toUserAccount) { //kya pta id glt di ho ya account delete ho gya ho
-        return res.status(404).json({ message: "From or To account not found" });
-    }
-
-
-    if (!fromUserAccount) {
-        return res.status(500).json({ message: "System user account not found" });
-    }
-
 
     /**
-     * 2. Validate idempotency key - check if a transaction with the same idempotency key already exists
+     * 2. Fetch accounts
      */
-    const isTransactionAlreadyExists = await transactionModel.findOne({
-        idempotencyKey: idempotencyKey //same to nhi h ? 
-    });
+    try {
+        const fromUserAccount = await accountModel.findById(fromAccount);
+        const toUserAccount = await accountModel.findById(toAccount);
 
-    if(isTransactionAlreadyExists) { 
-        if(isTransactionAlreadyExists.status === "COMPLETED") { 
+        if (!fromUserAccount || !toUserAccount) {
+            return res.status(400).json({ message: "Invalid accounts" });
+        }
+
+        
+        /**
+         * 3. Validate idempotency key - check if a transaction with the same idempotency key already exists
+         */
+        const existingTx = await transactionModel.findOne({ idempotencyKey });
+
+        if (existingTx) {
             return res.status(200).json({
-                message: "Transaction already completed",
-                transaction: isTransactionAlreadyExists
+                message: "Transaction already processed",
+                transaction: existingTx
             });
         }
 
-        if(isTransactionAlreadyExists.status === "PENDING") {
-            return res.status(200).json({
-                message: "Transaction is still pending",
+        
+        /**
+         * 4. Check account status
+         */
+        if (fromUserAccount.status !== "ACTIVE" || toUserAccount.status !== "ACTIVE") {
+            return res.status(400).json({
+                message: "Accounts must be ACTIVE"
             });
         }
 
-        if(isTransactionAlreadyExists.status === "FAILED") {
+
+        /**        
+         * 5. Check if the fromAccount has sufficient balance
+         */
+        const balance = await fromUserAccount.getBalance();
+
+        if (balance < amount) {
+            return res.status(400).json({
+                message: "Insufficient balance"
+            });
+        }
+
+        /**
+         * 6. Start MongoDB session(DB transaction) for atomicity - ensures that all operations either succeed or fail together
+         */
+        const session = await mongoose.startSession();
+        session.startTransaction();
+
+        let transaction;
+
+
+        /**
+         * 7. Create transaction (PENDING)
+         */
+        try {
+            transaction = await transactionModel.create([{
+                fromAccount,
+                toAccount,
+                amount,
+                idempotencyKey,
+                status: "PENDING"
+            }], { session });
+
+            transaction = transaction[0];
+
+            /**
+             * 8. Create DEBIT ledger entry
+             */
+            await ledgerModel.create([{
+                account: fromAccount,
+                amount,
+                transaction: transaction._id,
+                type: "DEBIT"
+            }], { session });
+
+            /**
+             * 9. Create CREDIT ledger entry
+             */
+            await ledgerModel.create([{
+                account: toAccount,
+                amount,
+                transaction: transaction._id,
+                type: "CREDIT"
+            }], { session });
+
+            /**
+             * 10. Mark transaction as COMPLETED
+             */
+            transaction.status = "COMPLETED";
+            await transaction.save({ session });
+
+            /**
+             * 11. Commit the transaction
+             */
+            await session.commitTransaction();
+            session.endSession();
+
+        } catch (err) {
+            /**
+             * Rollback DB transaction in case of error
+             */
+            await session.abortTransaction();
+            session.endSession();
+
             return res.status(500).json({
-                message: "Transaction already failed",
+                message: "Transaction failed",
+                error: err.message
             });
         }
 
-        if(isTransactionAlreadyExists.status === "REVERSED") {
-            return res.status(200).json({
-                message: "Transaction was reversed, please retry",
-            });
-        }
+        /**
+         * 11. Send email notification
+         */
+        await emailService.sendTransactionEmail(
+            req.user.email,
+            req.user.name,
+            amount,
+            toAccount
+        );
+
+        return res.status(201).json({
+            message: "Transaction successful",
+            transaction
+        });
+
+    } catch (error) {
+        /**
+         * Global error handling for unforeseen errors
+         */
+        return res.status(500).json({
+            message: "Something went wrong",
+            error: error.message
+        });
     }
-
-
-    /**
-     * 3. Check Account Status
-     */
-    
-    if(fromUserAccount.status !== "ACTIVE" || toUserAccount.status !== "ACTIVE") {
-        return res.status(400).json({ 
-            message: "One or both accounts are not active"
-         });
-    }
-
-    /**
-     * 4. Check if the fromAccount has sufficient balance
-     */
-
-    const fromAccountBalance = await fromUserAccount.getBalance(); 
-
-    if(fromAccountBalance < amount) {
-        return res.status(400).json({
-            message: `Insufficient balance. Current balance is ${fromAccountBalance}. Requested amount is ${amount}`
-         });
-    }
-
-    /**
-     * 5. Create a new transaction with status "PENDING"
-     */
-    const session = await mongoose.startSession();
-    session.startTransaction(); //ye hum isiley taaki agr iske baad koi error aata h to hum transaction ko rollback kar sakein, aur data consistency bani rahe
-
-
-    const transaction = new transactionModel({
-        fromAccount: fromUserAccount._id,
-        toAccount: toUserAccount._id,
-        amount,
-        idempotencyKey,
-        status: "PENDING",
-    });
-
-     await transaction.save({ session });
-
-    /**
-     * 6. Create ledger entries
-     */
-    const debitLedgerEntry = await ledgerModel.create([{
-        account: fromUserAccount._id,
-        amount,
-        transaction: transaction._id,
-        type: "DEBIT"
-    }], { session });   //agr session hoga to data array ki format mei dena hoga
-
-    const creditLedgerEntry = await ledgerModel.create([{
-        account: toUserAccount._id,
-        amount,
-        transaction: transaction._id,
-        type: "CREDIT"
-    }], { session });
-
-    transaction.status = "COMPLETED";
-
-    await transaction.save({ session });
-
-    await session.commitTransaction();
-    session.endSession();
-
-    /**
-     * 6. Send email notifications to both parties
-     */
-    await emailService.sendTransactionEmail(req.user.email, req.user.name, amount, toUserAccount._id); 
-
-    return res.status(201).json({
-        message: "Transaction created successfully",
-        transactionId: transaction._id
-    });
-
-
-    // return res.status(201).json({
-    //     message: "Initial funds transaction created successfully",
-    //     transactionId: transaction._id
-    // });
 }
 
+module.exports = { createTransaction };
 
-module.exports = { createTransaction, createInitialFundsTransaction };
 
-//iss file mei hum transaction se related controllers define karenge 
+
+
+
 

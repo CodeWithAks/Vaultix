@@ -18,4 +18,9 @@ router.post("/",authMiddleware,accountController.createAccountController);
 router.get("/",authMiddleware,accountController.getAccountController); 
 
 
+/**
+ * - GET /api/accounts/balance/:accountId
+ */
+router.get("/balance/:accountId",authMiddleware,accountController.getAccountBalanceController)
+
 module.exports = router;

@@ -89,7 +89,7 @@ async function createTransaction(req, res) {
          * 7. Create transaction (PENDING)
          */
         try {
-            transaction = await transactionModel.create([{
+              transaction = await transactionModel.create([{
                 fromAccount,
                 toAccount,
                 amount,
@@ -102,17 +102,21 @@ async function createTransaction(req, res) {
             /**
              * 8. Create DEBIT ledger entry
              */
-            await ledgerModel.create([{
+            const debitLedgerEntry = await ledgerModel.create([{
                 account: fromAccount,
                 amount,
                 transaction: transaction._id,
                 type: "DEBIT"
             }], { session });
 
+            await (() => {
+                return new Promise((resolve) => setTimeout(resolve, 100*1000)) 
+            })
+
             /**
              * 9. Create CREDIT ledger entry
              */
-            await ledgerModel.create([{
+            const creditLedgerEntry = await ledgerModel.create([{
                 account: toAccount,
                 amount,
                 transaction: transaction._id,

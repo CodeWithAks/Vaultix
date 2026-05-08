@@ -1,6 +1,7 @@
 const userModel = require("../models/user.model");
 const jwt = require("jsonwebtoken");
 const { sendRegistrationEmail } = require("../services/email.service");
+const tokenBlacklistModel = require("../models/blackList.model");
 
 //POST method api-> /api/auth/register
 async function userRegisterController(req, res) {
@@ -72,6 +73,28 @@ async function userLoginController(req, res) {
     })
 }
 
+//POST method api-> /api/auth/logout
+async function userLogoutController(req,res) {
+    const token = req.cookies.token || req.headers.authorization?.split(" ")[1];
+
+    if(!token){
+        return res.status(400).json({
+            message: "Token is required for logout"
+        })
+    }
+
+    res.cookie("token","") // pehle yha se remove kya taki client side se bhi token remove ho jaye
+
+    await tokenBlacklistModel.create({
+        token: token //blacklist mei token add kar diya taki wo token future mei use na ho sake
+    })
+
+    res.status(200).json({
+        message: "User logged out successfully"
+    })
+}
 
 
-module.exports = { userRegisterController, userLoginController };
+
+
+module.exports = { userRegisterController, userLoginController, userLogoutController };

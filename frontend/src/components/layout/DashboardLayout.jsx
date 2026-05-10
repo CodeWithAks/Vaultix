@@ -1,31 +1,16 @@
 import Sidebar from "./Sidebar";
+import TopNavbar from "./TopNavbar";
 
 export default function DashboardLayout({ children }) {
   return (
-    <div className="flex min-h-screen bg-black text-white">
+    <div className="flex bg-black text-white min-h-screen">
 
-      {/* Sidebar */}
       <Sidebar />
 
-      {/* Main Content */}
-      <div className="flex-1 p-6">
+      <div className="flex-1 p-8">
 
-        {/* Navbar */}
-        <div className="flex justify-between items-center mb-8">
+        <TopNavbar />
 
-          <h1 className="text-2xl font-bold">
-            Bank Dashboard
-          </h1>
-
-          <input
-            type="text"
-            placeholder="Search..."
-            className="bg-zinc-900 px-4 py-2 rounded-lg outline-none"
-          />
-
-        </div>
-
-        {/* Dynamic Page Content */}
         {children}
 
       </div>

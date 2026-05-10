@@ -11,12 +11,12 @@ export default function AppRoutes() {
   return (
     <BrowserRouter>
         <Routes> 
-            <Route path="/" element={<Dashboard />} />
+          <Route path="/" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+            <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/cards" element={<Cards />} />
             <Route path="/transfers" element={<Transfers />} />
             <Route path="/insights" element={<Insights />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
         </Routes>
     </BrowserRouter>
   )

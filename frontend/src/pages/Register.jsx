@@ -1,8 +1,12 @@
 import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [fullName, setFullName] = useState("");
+
+  const navigate = useNavigate();
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-black px-4">
@@ -20,6 +24,22 @@ export default function Register() {
           <p className="text-zinc-400">
             Fill in the details to create your account
           </p>
+
+        </div>
+
+        {/* FullName Input */}
+        <div className="mb-5">
+
+          <label className="block text-sm text-zinc-400 mb-2">
+            Full Name
+          </label>
+          <input
+            type="text"
+            placeholder="Enter your full name"
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+            className="w-full bg-zinc-900 text-white border border-zinc-700 rounded-2xl px-4 py-3 outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 transition"
+          />
 
         </div>
 
@@ -58,7 +78,7 @@ export default function Register() {
         </div>
 
         {/* Register Button */}
-        <button
+        <button onClick={()=> navigate("/dashboard")}
           className="w-full bg-cyan-400 text-black font-semibold py-3 rounded-2xl hover:bg-cyan-300 transition-all duration-300"
         >
           Register
@@ -67,9 +87,12 @@ export default function Register() {
         {/* Register Text */}
         <p className="text-zinc-500 mt-5 text-center">
           Already have an account?{" "}
-          <a href="/login" className="text-cyan-400 hover:text-cyan-300 transition">
+          <Link
+            to="/login"
+            className="text-cyan-400 hover:text-cyan-300 transition"
+          >
             Login
-          </a>
+          </Link>
         </p>
 
       </div>

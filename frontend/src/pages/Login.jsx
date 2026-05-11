@@ -1,8 +1,11 @@
 import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  const navigate = useNavigate();
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-black px-4">
@@ -58,18 +61,20 @@ export default function Login() {
         </div>
 
         {/* Login Button */}
-        <button
-          className="w-full bg-cyan-400 text-black font-semibold py-3 rounded-2xl hover:bg-cyan-300 transition-all duration-300"
-        >
+        <button onClick={() => navigate("/dashboard")}
+          className="w-full bg-cyan-400 text-black font-semibold py-3 rounded-2xl hover:bg-cyan-300 transition-all duration-300">
           Login
         </button>
 
         {/* Register Text */}
         <p className="text-zinc-500 mt-5 text-center">
           Don't have an account?{" "}
-          <a href="/register" className="text-cyan-400 hover:text-cyan-300 transition">
+          <Link
+            to="/register"
+            className="text-cyan-400 hover:text-cyan-300 transition"
+          >
             Register
-          </a>
+          </Link>
         </p>
 
       </div>

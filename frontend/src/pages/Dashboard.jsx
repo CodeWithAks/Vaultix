@@ -3,6 +3,7 @@ import BalanceCard from "../components/dashboard/BalanceCard";
 import Analytics from "../components/dashboard/Analytics";
 import QuickTransfer from "../components/dashboard/QuickTransfer";
 import Transactions from "../components/dashboard/Transactions";
+import StatsCards from "../components/dashboard/StatsCards";
 
 export default function Dashboard() {
   return (
@@ -15,6 +16,8 @@ export default function Dashboard() {
         <div className="lg:col-span-2">
 
           <BalanceCard />
+
+          <StatsCards />
 
         </div>
 

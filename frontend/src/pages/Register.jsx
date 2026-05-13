@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import {registerUser} from "../api/auth.api"; // Import the registerUser function
 
 export default function Register() {
   const [email, setEmail] = useState("");
@@ -7,6 +8,21 @@ export default function Register() {
   const [fullName, setFullName] = useState("");
 
   const navigate = useNavigate();
+
+  const handleRegister = async () => {
+    try{
+      const response =await registerUser({
+        name: fullName,
+        email,
+        password
+      }); 
+      console.log("Registration successful:", response);
+      navigate("/login"); 
+    } catch (error) {
+      console.error("Registration failed:", error);
+      alert("Registration failed: " + (error.message || "Unknown error"));
+    }
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-black px-4">
@@ -78,7 +94,7 @@ export default function Register() {
         </div>
 
         {/* Register Button */}
-        <button onClick={()=> navigate("/dashboard")}
+        <button onClick={handleRegister}
           className="w-full bg-cyan-400 text-black font-semibold py-3 rounded-2xl hover:bg-cyan-300 transition-all duration-300"
         >
           Register

@@ -2,6 +2,7 @@
 
 const express = require("express");
 const cookieParser = require("cookie-parser");
+const cors = require("cors");
 
 /**
  * - Routes required
@@ -11,6 +12,14 @@ const accountRouter = require("./routes/account.routes");
 const transactionRoutes = require("./routes/transaction.routes");
 
 const app = express();
+
+/**
+ * - Middlewares
+ */
+app.use(cors({
+    origin: "http://localhost:5173", // Replace with your frontend URL
+    credentials: true, // Allow cookies to be sent with requests
+}))
 
 app.use(express.json());
 app.use(cookieParser());

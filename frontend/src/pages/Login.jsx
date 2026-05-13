@@ -1,11 +1,27 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import {loginUser} from "../api/auth.api"; // Import the loginUser function
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const navigate = useNavigate();
+
+  const handleLogin = async () => {
+    try {
+      const response = await loginUser({ email, password }); // Call the loginUser function
+
+      localStorage.setItem("token", response.token); // Store token in localStorage
+      localStorage.setItem("user", JSON.stringify(response.user)); // Store user data in localStorage
+      
+      console.log("Login successful:", response);
+      navigate("/dashboard"); 
+    } catch (error) {
+      console.error("Login failed:", error);
+      alert("Login failed: " + (error.message || "Unknown error"));
+    }
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-black px-4">
@@ -61,7 +77,7 @@ export default function Login() {
         </div>
 
         {/* Login Button */}
-        <button onClick={() => navigate("/dashboard")}
+        <button onClick={handleLogin}
           className="w-full bg-cyan-400 text-black font-semibold py-3 rounded-2xl hover:bg-cyan-300 transition-all duration-300">
           Login
         </button>

@@ -23,10 +23,8 @@ async function getAccountController(req,res) {
 }
 
 async function getAccountBalanceController(req,res) {
-    const {accountId} = req.params; //url se account id mil jayega
 
     const account = await accountModel.findOne({
-        _id:accountId,
         user:req.user._id //kya ye wahi user ka account hai jo request kar raha hai
     }) 
 
@@ -49,3 +47,7 @@ module.exports = {
     getAccountController,
     getAccountBalanceController
 }
+
+
+//_id:accountId
+//const {accountId} = req.params;

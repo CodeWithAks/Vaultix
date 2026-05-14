@@ -20,7 +20,8 @@ router.get("/",authMiddleware,accountController.getAccountController);
 
 /**
  * - GET /api/accounts/balance/:accountId
+ * - Get account balance for the specified account ID, ensuring the user is authenticated and authorized to access that account 
  */
-router.get("/balance/:accountId",authMiddleware,accountController.getAccountBalanceController)
+router.get("/balance",authMiddleware,accountController.getAccountBalanceController)
 
 module.exports = router;

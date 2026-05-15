@@ -7,6 +7,12 @@ const transactionController = require("../controllers/transaction.controller");
 const transactionRoutes = Router();
 
 /**
+ * - GET /api/transactions - Get all transactions for the authenticated user
+ */
+transactionRoutes.get("/", authMiddleware, transactionController.getTransactions)
+
+
+/**
  * - POST /api/transaction/create - Create a new transaction
  */
 transactionRoutes.post("/",authMiddleware,transactionController.createTransaction) 

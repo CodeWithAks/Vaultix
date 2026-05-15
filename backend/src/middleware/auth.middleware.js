@@ -1,6 +1,7 @@
 const userModel = require("../models/user.model");
 const jwt = require("jsonwebtoken");
 const tokenBlacklistModel = require("../models/blackList.model");
+const accountModel = require("../models/account.model");
 
 async function authMiddleware(req, res, next) {
 
@@ -21,7 +22,14 @@ async function authMiddleware(req, res, next) {
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         const user = await userModel.findById(decoded.userId); // mil gyi user id se user details
+
+        const account = await accountModel.findOne({ user: user._id }); // user ke account details milenge
+
+        if (!account) {
+            return res.status(400).json({ message: "User account not found" });
+        }
         req.user = user; // req object me user details add krdi
+        req.user.account = account._id; // req object me user ke account details bhi add krdi
         return next(); // next middleware ya route handler pe jao
 
 

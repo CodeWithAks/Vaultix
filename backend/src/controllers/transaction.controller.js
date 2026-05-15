@@ -174,7 +174,41 @@ async function createTransaction(req, res) {
     }
 }
 
-module.exports = { createTransaction };
+
+async function getTransactions(req, res) {
+    console.log("REQ USER:", req.user); 
+        try {
+        const transactions = await transactionModel.find({
+            $or: [ 
+                { fromAccount: req.user.account }, //dono transactions fetch hongi, jisme user sender hoga ya receiver hoga
+                { toAccount: req.user.account }
+            ]
+        }).populate({
+        path: "fromAccount",
+        populate: { 
+            path: "user", 
+            select: "name email"
+        }
+    })
+    .populate({
+        path: "toAccount",
+        populate: {
+            path: "user",
+            model: "user"
+        }
+    }).sort({ createdAt: -1 }); //ismein transactions ko descending order me sort karenge, taki latest transaction pehle aaye
+
+        return res.status(200).json(transactions);
+    } catch (error) {
+        return res.status(500).json({
+            message: "Failed to fetch transactions",
+            error: error.message
+        });
+    }
+}
+
+
+module.exports = { createTransaction, getTransactions };
 
 
 

@@ -1,37 +1,25 @@
-import React from 'react'
-
-const transactions = [
-  {
-    id: 1,
-    name: "Netflix",
-    date: "Today",
-    amount: "-$15.99",
-    status: "Completed",
-  },
-  {
-    id: 2,
-    name: "Salary",
-    date: "Yesterday",
-    amount: "+$3200",
-    status: "Completed",
-  },
-  {
-    id: 3,
-    name: "Amazon",
-    date: "2 May",
-    amount: "-$120.50",
-    status: "Completed",
-  },
-  {
-    id: 4,
-    name: "Spotify",
-    date: "1 May",
-    amount: "-$9.99",
-    status: "Completed",
-  },
-];
+import React, { useEffect, useState } from 'react'
+import { getTransactions } from '../../api/transaction.api';
 
 export default function Transactions() {
+
+  const [transactions, setTransactions] = useState([]);
+  const [currentAccount, setCurrentAccount] = useState(null);
+
+  useEffect(() => {
+    const getTransactionsData = async () => {
+      try {
+        const data = await getTransactions(); //fetching transactions data from backend
+        setTransactions(data.transactions); //setting the fetched data to state
+        console.log("Fetched transactions:", data.transactions);
+        setCurrentAccount(data.currentAccount); //setting current account data to state
+      } catch (error) {
+        console.error("Error fetching transactions:", error);
+      }
+    }
+    getTransactionsData();
+  }, []);
+
   return (
     <div className="bg-zinc-950 border border-zinc-800 rounded-3xl p-6 mt-8">
 
@@ -51,42 +39,58 @@ export default function Transactions() {
       {/* Transactions List */}
       <div className="flex flex-col gap-4">
 
-        {transactions.map((transaction) => (
+        {transactions.map((transaction) => {
 
-          <div
-            key={transaction.id}
-            className="flex justify-between items-center bg-zinc-900 rounded-2xl p-4 hover:bg-zinc-800 transition"
-          >
+  const isSender =
+    transaction?.fromAccount?._id?.toString() ===
+    currentAccount?.toString();
 
-            {/* Left */}
-            <div>
+  return (
 
-              <h3 className="font-medium">
-                {transaction.name}
-              </h3>
+    <div
+      key={transaction._id}
+      className="flex justify-between items-center bg-zinc-900 rounded-2xl p-4 hover:bg-zinc-800 transition"
+    >
 
-              <p className="text-sm text-zinc-400">
-                {transaction.date}
-              </p>
+      {/* Left */}
+      <div>
 
-            </div>
+        <h3 className="font-medium">
+          {isSender
+            ? `To: ${transaction?.toAccount?.user?.name}`
+            : `From: ${transaction?.fromAccount?.user?.name}`}
+        </h3>
 
-            {/* Right */}
-            <div className="text-right">
+        <p className="text-sm text-zinc-400">
+          {new Date(transaction.createdAt).toLocaleDateString()}
+        </p>
 
-              <p className="font-semibold">
-                {transaction.amount}
-              </p>
+      </div>
 
-              <p className="text-sm text-green-400">
-                {transaction.status}
-              </p>
+      {/* Right */}
+      <div className="text-right">
 
-            </div>
+        <p
+          className={`font-semibold ${
+            isSender
+              ? "text-red-400"
+              : "text-green-400"
+          }`}
+        >
+          {isSender ? "-" : "+"}${transaction.amount}
+        </p>
 
-          </div>
+        <p className="text-sm text-green-400">
+          {transaction.status}
+        </p>
 
-        ))}
+      </div>
+
+    </div>
+
+  );
+
+})}
 
       </div>
 

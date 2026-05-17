@@ -5,7 +5,7 @@ const ledgerModel = require("./ledger.model");
 const accountSchema = new mongoose.Schema({
     user: {                                       //that ye acc. kis user se belong krta h 
         type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
+        ref: "user",
         required: [true, "User ID is required"],
         index: true                                //taaki searching fast ho 
     },

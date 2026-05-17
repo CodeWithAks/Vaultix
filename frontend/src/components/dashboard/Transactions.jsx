@@ -41,56 +41,55 @@ export default function Transactions() {
 
         {transactions.map((transaction) => {
 
-  const isSender =
-    transaction?.fromAccount?._id?.toString() ===
-    currentAccount?.toString();
+          const isSender =
+            transaction?.fromAccount?._id?.toString() ===
+            currentAccount?.toString();
 
-  return (
+          return (
 
-    <div
-      key={transaction._id}
-      className="flex justify-between items-center bg-zinc-900 rounded-2xl p-4 hover:bg-zinc-800 transition"
-    >
+            <div
+              key={transaction._id}
+              className="flex justify-between items-center bg-zinc-900 rounded-2xl p-4 hover:bg-zinc-800 transition"
+            >
 
-      {/* Left */}
-      <div>
+              {/* Left */}
+              <div>
 
-        <h3 className="font-medium">
-          {isSender
-            ? `To: ${transaction?.toAccount?.user?.name}`
-            : `From: ${transaction?.fromAccount?.user?.name}`}
-        </h3>
+                <h3 className="font-medium">
+                  {isSender
+                    ? `To: ${transaction?.toAccount?.user?.name}`
+                    : `From: ${transaction?.fromAccount?.user?.name}`}
+                </h3>
 
-        <p className="text-sm text-zinc-400">
-          {new Date(transaction.createdAt).toLocaleDateString()}
-        </p>
+                <p className="text-sm text-zinc-400">
+                  {new Date(transaction.createdAt).toLocaleDateString()}
+                </p>
 
-      </div>
+              </div>
 
-      {/* Right */}
-      <div className="text-right">
+              {/* Right */}
+              <div className="text-right">
 
-        <p
-          className={`font-semibold ${
-            isSender
-              ? "text-red-400"
-              : "text-green-400"
-          }`}
-        >
-          {isSender ? "-" : "+"}${transaction.amount}
-        </p>
+                <p
+                  className={`font-semibold ${isSender
+                      ? "text-red-400"
+                      : "text-green-400"
+                    }`}
+                >
+                  {isSender ? "-" : "+"}${transaction.amount}
+                </p>
 
-        <p className="text-sm text-green-400">
-          {transaction.status}
-        </p>
+                <p className="text-sm text-green-400">
+                  {transaction.status}
+                </p>
 
-      </div>
+              </div>
 
-    </div>
+            </div>
 
-  );
+          );
 
-})}
+        })}
 
       </div>
 

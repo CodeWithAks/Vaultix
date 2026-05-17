@@ -41,7 +41,7 @@ async function createTransaction(req, res) {
             return res.status(400).json({ message: "Invalid accounts" });
         }
 
-        
+
         /**
          * 3. Validate idempotency key - check if a transaction with the same idempotency key already exists
          */
@@ -54,7 +54,7 @@ async function createTransaction(req, res) {
             });
         }
 
-        
+
         /**
          * 4. Check account status
          */
@@ -89,7 +89,7 @@ async function createTransaction(req, res) {
          * 7. Create transaction (PENDING)
          */
         try {
-              transaction = await transactionModel.create([{
+            transaction = await transactionModel.create([{
                 fromAccount,
                 toAccount,
                 amount,
@@ -109,9 +109,9 @@ async function createTransaction(req, res) {
                 type: "DEBIT"
             }], { session });
 
-            await (() => {
-                return new Promise((resolve) => setTimeout(resolve, 100*1000)) 
-            })
+            await new Promise((resolve) =>
+                setTimeout(resolve, 100 * 1000)
+            );
 
             /**
              * 9. Create CREDIT ledger entry
@@ -136,6 +136,7 @@ async function createTransaction(req, res) {
             session.endSession();
 
         } catch (err) {
+            console.error(error);
             /**
              * Rollback DB transaction in case of error
              */
@@ -164,6 +165,7 @@ async function createTransaction(req, res) {
         });
 
     } catch (error) {
+        console.error(error);
         /**
          * Global error handling for unforeseen errors
          */
@@ -175,31 +177,39 @@ async function createTransaction(req, res) {
 }
 
 
+/**
+ * Get transactions for the authenticated user's account
+ */
 async function getTransactions(req, res) {
-    console.log("REQ USER:", req.user); 
-        try {
+    console.log("REQ USER:", req.user);
+    try {
         const transactions = await transactionModel.find({
-            $or: [ 
+            $or: [
                 { fromAccount: req.user.account }, //dono transactions fetch hongi, jisme user sender hoga ya receiver hoga
                 { toAccount: req.user.account }
             ]
         }).populate({
-        path: "fromAccount",
-        populate: { 
-            path: "user", 
-            select: "name email"
-        }
-    })
-    .populate({
-        path: "toAccount",
-        populate: {
-            path: "user",
-            model: "user"
-        }
-    }).sort({ createdAt: -1 }); //ismein transactions ko descending order me sort karenge, taki latest transaction pehle aaye
+            path: "fromAccount",
+            populate: {
+                path: "user",
+                select: "name email"
+            }
+        })
+            .populate({
+                path: "toAccount",
+                populate: {
+                    path: "user",
+                    select: "name email"
+                }
+            }).sort({ createdAt: -1 }); //ismein transactions ko descending order me sort karenge, taki latest transaction pehle aaye
 
-        return res.status(200).json(transactions);
+        // return res.status(200).json(transactions);
+        return res.status(200).json({
+            transactions,
+            currentAccount: req.user.account
+        });
     } catch (error) {
+        console.error("Error fetching transactions:", error);
         return res.status(500).json({
             message: "Failed to fetch transactions",
             error: error.message

@@ -1,8 +1,26 @@
 import { useState } from "react";
+import { createTransaction } from "../../api/transaction.api";
 
 export default function QuickTransfer() {
     const [recipient, setRecipient] = useState("");
-    const [amount, setAmount] = useState("");
+    const [amount, setAmount] = useState(""); 
+    const [loading, setLoading] = useState(false);
+
+    const handleTransfer = async () => {
+        try{
+            setLoading(true);
+            const data = await createTransaction({
+                toAccount: recipient,
+                amount: Number(amount),
+                idempotencyKey: crypto.randomUUID()
+            })
+            console.log("Transaction successful:", data);
+        } catch (error) {
+            console.error("Transaction failed:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     return (
         <div className="bg-zinc-950 border border-zinc-800 rounded-3xl p-6 mt-8">
@@ -45,10 +63,10 @@ export default function QuickTransfer() {
             </div>
 
             {/* Transfer Button */}
-            <button
+            <button onClick={handleTransfer} disabled={loading}
                 className="w-full bg-cyan-400 text-black font-semibold py-3 rounded-xl hover:bg-cyan-300 transition"
             >
-                Transfer
+                {loading ? "Processing..." : "Transfer"}
             </button>
         </div>
     );

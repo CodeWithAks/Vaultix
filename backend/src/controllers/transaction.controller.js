@@ -21,7 +21,8 @@ const accountModel = require("../models/account.model");
 
 
 async function createTransaction(req, res) {
-    const { fromAccount, toAccount, amount, idempotencyKey } = req.body;
+    const { toAccount, amount, idempotencyKey } = req.body;
+        const fromAccount = req.user.account; //yeh middleware se aayega, jismein user authentication ke baad apne account details attach karenge request object pe, taki hum yahan use kar sakein
 
     /**
      * 1. Validate request
@@ -135,7 +136,7 @@ async function createTransaction(req, res) {
             await session.commitTransaction();
             session.endSession();
 
-        } catch (err) {
+        } catch (error) {
             console.error(error);
             /**
              * Rollback DB transaction in case of error
@@ -145,7 +146,7 @@ async function createTransaction(req, res) {
 
             return res.status(500).json({
                 message: "Transaction failed",
-                error: err.message
+                error: error.message
             });
         }
 

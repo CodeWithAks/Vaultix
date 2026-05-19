@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { createTransaction } from "../../api/transaction.api";
+import { toast } from "react-toastify";
 
 export default function QuickTransfer() {
     const [recipient, setRecipient] = useState("");
@@ -10,15 +11,20 @@ export default function QuickTransfer() {
         try{
             setLoading(true);
             const data = await createTransaction({
-                toAccount: recipient,
+                // toAccount: recipient,
+                toAccount: recipient.trim().toLowerCase(),
                 amount: Number(amount),
                 idempotencyKey: crypto.randomUUID()
             })
             console.log("Transaction successful:", data);
+            toast.success("Transaction successful!");
         } catch (error) {
             console.error("Transaction failed:", error);
+            toast.error("Transaction failed!");
         } finally {
             setLoading(false);
+            setRecipient("");
+            setAmount("");
         }
     };
 
@@ -38,8 +44,8 @@ export default function QuickTransfer() {
                 </label>
 
                 <input
-                    type="text"
-                    placeholder="Enter recipient"
+                    type="email"
+                    placeholder="Enter recipient email"
                     value={recipient}
                     onChange={(e) => setRecipient(e.target.value)}
                     className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 outline-none"

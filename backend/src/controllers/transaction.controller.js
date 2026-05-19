@@ -3,6 +3,7 @@ const ledgerModel = require("../models/ledger.model");  //isse ledger me entries
 const emailService = require("../services/email.service"); //isse email notifications jayengi
 const mongoose = require("mongoose");
 const accountModel = require("../models/account.model");
+const userModel = require("../models/user.model");
 
 /**
  * - Create a new transaction
@@ -22,7 +23,7 @@ const accountModel = require("../models/account.model");
 
 async function createTransaction(req, res) {
     const { toAccount, amount, idempotencyKey } = req.body;
-        const fromAccount = req.user.account; //yeh middleware se aayega, jismein user authentication ke baad apne account details attach karenge request object pe, taki hum yahan use kar sakein
+    const fromAccount = req.user.account; //yeh middleware se aayega, jismein user authentication ke baad apne account details attach karenge request object pe, taki hum yahan use kar sakein
 
     /**
      * 1. Validate request
@@ -35,11 +36,35 @@ async function createTransaction(req, res) {
      * 2. Fetch accounts
      */
     try {
-        const fromUserAccount = await accountModel.findById(fromAccount);
-        const toUserAccount = await accountModel.findById(toAccount);
+        console.log("FROM USER:", req.user);
+        console.log("FROM ACCOUNT ID:", req.user.account);
+        // const fromUserAccount = await accountModel.findById(fromAccount);
+        const fromUserAccount = await accountModel.findOne({
+            user: req.user._id
+        });
+        const toUser = await userModel.findOne({ email: toAccount });
 
-        if (!fromUserAccount || !toUserAccount) {
-            return res.status(400).json({ message: "Invalid accounts" });
+        if (!toUser) {
+            return res.status(400).json({ message: "User not found" });
+        }
+
+        const toUserAccount = await accountModel.findOne({
+            user: toUser?._id
+        });
+
+        console.log("FROM ACCOUNT DB:", fromUserAccount);
+        console.log("TO USER:", toUser);
+        console.log("TO USER ACCOUNT:", toUserAccount);
+        // const toUserAccount = await accountModel.findOne({
+        //     "user.email": toAccount //isse 
+        // })
+
+        if (!fromUserAccount) {
+            return res.status(400).json({ message: "Sender account not found" });
+        }
+
+        if (!toUserAccount) {
+            return res.status(400).json({ message: "Receiver account not found" });
         }
 
 
@@ -91,8 +116,8 @@ async function createTransaction(req, res) {
          */
         try {
             transaction = await transactionModel.create([{
-                fromAccount,
-                toAccount,
+                fromAccount: fromUserAccount._id,
+                toAccount: toUserAccount._id,
                 amount,
                 idempotencyKey,
                 status: "PENDING"
@@ -104,21 +129,21 @@ async function createTransaction(req, res) {
              * 8. Create DEBIT ledger entry
              */
             const debitLedgerEntry = await ledgerModel.create([{
-                account: fromAccount,
+                account: fromUserAccount._id,
                 amount,
                 transaction: transaction._id,
                 type: "DEBIT"
             }], { session });
 
-            await new Promise((resolve) =>
-                setTimeout(resolve, 100 * 1000)
-            );
+            // await new Promise((resolve) =>
+            //     setTimeout(resolve, 100 * 1000)
+            // );
 
             /**
              * 9. Create CREDIT ledger entry
              */
             const creditLedgerEntry = await ledgerModel.create([{
-                account: toAccount,
+                account: toUserAccount._id,
                 amount,
                 transaction: transaction._id,
                 type: "CREDIT"

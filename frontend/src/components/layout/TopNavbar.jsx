@@ -1,4 +1,5 @@
 import { Bell, Search, Menu } from "lucide-react";
+import React from "react";
 
 export default function TopNavbar({ onMenuClick }) {
   return (
@@ -8,7 +9,7 @@ export default function TopNavbar({ onMenuClick }) {
       <div className="flex items-center justify-between gap-4 w-full sm:w-auto">
         <div>
           <h1 className="text-3xl font-bold">Dashboard</h1>
-          <p className="text-zinc-400 mt-1">Welcome back, Akshara 👋</p>
+          <p className="text-zinc-400 mt-1">Welcome back, Akshara👋</p>
         </div>
 
         <button

@@ -39,7 +39,21 @@ export default function Transactions() {
       {/* Transactions List */}
       <div className="flex flex-col gap-4">
 
-        {transactions.map((transaction) => {
+        {transactions.length === 0 ? (
+
+    <div className="bg-zinc-900 rounded-2xl p-10 text-center border border-zinc-800">
+      <h3 className="text-xl font-semibold text-zinc-300">
+        No Transactions Yet
+      </h3>
+
+      <p className="text-zinc-500 mt-2">
+        Your recent transactions will appear here.
+      </p>
+    </div>
+
+  ) : (
+
+        transactions.map((transaction) => {
 
           const isSender =
             transaction?.fromAccount?._id?.toString() ===
@@ -89,7 +103,8 @@ export default function Transactions() {
 
           );
 
-        })}
+        })
+      )}
 
       </div>
 

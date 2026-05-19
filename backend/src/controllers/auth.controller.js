@@ -2,6 +2,7 @@ const userModel = require("../models/user.model");
 const jwt = require("jsonwebtoken");
 const { sendRegistrationEmail } = require("../services/email.service");
 const tokenBlacklistModel = require("../models/blackList.model");
+const accountModel = require("../models/account.model");
 
 //POST method api-> /api/auth/register
 async function userRegisterController(req, res) {
@@ -21,6 +22,12 @@ async function userRegisterController(req, res) {
 
     const user = await userModel.create({
         email, password, name
+    });
+
+    await accountModel.create({
+        user:user._id,
+        status: "ACTIVE",
+        currency: "INR",
     })
 
     const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: "3d" });

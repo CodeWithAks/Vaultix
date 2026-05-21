@@ -1,24 +1,27 @@
-import React, { useEffect, useState } from 'react'
-import { getTransactions } from '../../api/transaction.api';
+import React, { useEffect } from 'react'
+import { useSelector, useDispatch } from "react-redux";
+import { fetchTransactions } from "../../store/slices/transactionSlice";
+
 
 export default function Transactions() {
 
-  const [transactions, setTransactions] = useState([]);
-  const [currentAccount, setCurrentAccount] = useState(null);
-
+  const dispatch = useDispatch();
+  const { transactions, currentAccount, loading, error } = useSelector(
+    (state) => state.transactions
+  ); //store se data liya
+  
+  //fetch transactions 
   useEffect(() => {
-    const getTransactionsData = async () => {
-      try {
-        const data = await getTransactions(); //fetching transactions data from backend
-        setTransactions(data.transactions); //setting the fetched data to state
-        console.log("Fetched transactions:", data.transactions);
-        setCurrentAccount(data.currentAccount); //setting current account data to state
-      } catch (error) {
-        console.error("Error fetching transactions:", error);
-      }
-    }
-    getTransactionsData();
-  }, []);
+  dispatch(fetchTransactions());
+}, [dispatch]);
+
+  if(loading) {
+    return <p className="text-white">Loading...</p>
+  }
+
+  if(error) {
+    return <p className="text-red-500">Error: {error}</p>
+  }
 
   return (
     <div className="bg-zinc-950 border border-zinc-800 rounded-3xl p-6 mt-8">

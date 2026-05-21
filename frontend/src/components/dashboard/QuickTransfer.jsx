@@ -1,14 +1,23 @@
+import { useDispatch } from "react-redux";
+import { fetchBalance } from "../../store/slices/accountSlice";
+import { fetchTransactions } from "../../store/slices/transactionSlice";
+import { toast } from "react-toastify";
 import { useState } from "react";
 import { createTransaction } from "../../api/transaction.api";
-import { toast } from "react-toastify";
+
 
 export default function QuickTransfer() {
+    const dispatch = useDispatch();
     const [recipient, setRecipient] = useState("");
-    const [amount, setAmount] = useState(""); 
+    const [amount, setAmount] = useState("");
     const [loading, setLoading] = useState(false);
 
     const handleTransfer = async () => {
-        try{
+        try {
+            if (!recipient || !amount) {
+                toast.error("Please fill all fields");
+                return;
+            }
             setLoading(true);
             const data = await createTransaction({
                 // toAccount: recipient,
@@ -18,6 +27,9 @@ export default function QuickTransfer() {
             })
             console.log("Transaction successful:", data);
             toast.success("Transaction successful!");
+
+            dispatch(fetchBalance());
+            dispatch(fetchTransactions());
         } catch (error) {
             console.error("Transaction failed:", error);
             toast.error("Transaction failed!");
@@ -69,7 +81,9 @@ export default function QuickTransfer() {
             </div>
 
             {/* Transfer Button */}
-            <button onClick={handleTransfer} disabled={loading}
+            <button
+                onClick={handleTransfer}
+                disabled={loading || !recipient || !amount}
                 className="w-full bg-cyan-400 text-black font-semibold py-3 rounded-xl hover:bg-cyan-300 transition"
             >
                 {loading ? "Processing..." : "Transfer"}

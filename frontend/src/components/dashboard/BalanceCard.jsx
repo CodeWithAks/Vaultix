@@ -1,23 +1,27 @@
 import { Send, Plus } from "lucide-react";
-import {React, useEffect, useState } from "react";
-import { getBalance } from "../../api/account.api";
+import { React, useEffect } from "react";
+ import {useSelector, useDispatch } from "react-redux";
+import { fetchBalance } from "../../store/slices/accountSlice";
 
 
 export default function BalanceCard() {
 
-  const [balance,setBalance] = useState(0);
+  const dispatch = useDispatch();
+  const {balance,loading,error} = useSelector(
+    (state) => state.account
+  )
+  
+  useEffect(() => {
+    dispatch(fetchBalance());
+  }, [dispatch]);
 
-useEffect(()=> {
-  const fetchBalance = async() => {
-    try{
-      const data = await getBalance();
-      setBalance(data.balance);
-    } catch (error) {
-      console.error("Error fetching balance:", error);
-    }
-  };
-  fetchBalance();
-}, []);
+  if(loading) {
+    return <p className="text-white">Loading....</p>
+  }
+
+  if(error) {
+    return <p className="text-red-500">Error: {error}</p>
+  }
 
   return (
     <div className="bg-gradient-to-r from-cyan-500 to-blue-600 rounded-3xl p-8 shadow-2xl">

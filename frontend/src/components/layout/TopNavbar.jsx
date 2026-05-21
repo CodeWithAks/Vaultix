@@ -1,7 +1,16 @@
 import { Bell, Search, Menu } from "lucide-react";
 import React from "react";
 
+
 export default function TopNavbar({ onMenuClick }) {
+
+  const greeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return "Good morning";
+    else if (hour < 18) return "Good afternoon";
+    else return "Good evening";
+  };
+
   return (
     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
 
@@ -9,7 +18,7 @@ export default function TopNavbar({ onMenuClick }) {
       <div className="flex items-center justify-between gap-4 w-full sm:w-auto">
         <div>
           <h1 className="text-3xl font-bold">Dashboard</h1>
-          <p className="text-zinc-400 mt-1">Welcome back, Akshara👋</p>
+          <p className="text-zinc-400 mt-1">{greeting()}, Akshara👋</p>
         </div>
 
         <button

@@ -10,6 +10,7 @@ const cors = require("cors");
 const authRouter = require("./routes/auth.route");
 const accountRouter = require("./routes/account.routes");
 const transactionRoutes = require("./routes/transaction.routes");
+const analyticsRoutes = require("./routes/analytics.routes");
 
 const app = express();
 
@@ -17,7 +18,7 @@ const app = express();
  * - Middlewares
  */
 app.use(cors({
-    origin: "http://localhost:5173", // Replace with your frontend URL
+    origin: "http://localhost:5173", 
     credentials: true, // Allow cookies to be sent with requests
 }))
 
@@ -30,5 +31,5 @@ app.use(cookieParser());
 app.use("/api/auth",authRouter);
 app.use("/api/accounts",accountRouter);
 app.use("/api/transactions",transactionRoutes);
-
+app.use("/api/analytics",analyticsRoutes);
 module.exports = app;

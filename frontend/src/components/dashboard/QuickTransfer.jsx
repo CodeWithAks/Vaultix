@@ -1,6 +1,7 @@
 import { useDispatch } from "react-redux";
 import { fetchBalance } from "../../store/slices/accountSlice";
 import { fetchTransactions } from "../../store/slices/transactionSlice";
+import { fetchMonthlyAnalytics } from "../../store/slices/analyticsSlice";
 import { toast } from "react-toastify";
 import { useState } from "react";
 import { createTransaction } from "../../api/transaction.api";
@@ -30,6 +31,7 @@ export default function QuickTransfer() {
 
             dispatch(fetchBalance());
             dispatch(fetchTransactions());
+            dispatch(fetchMonthlyAnalytics());
         } catch (error) {
             console.error("Transaction failed:", error);
             toast.error("Transaction failed!");

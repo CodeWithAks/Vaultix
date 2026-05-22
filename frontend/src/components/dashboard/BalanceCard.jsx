@@ -1,25 +1,28 @@
 import { Send, Plus } from "lucide-react";
 import { React, useEffect } from "react";
- import {useSelector, useDispatch } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { fetchBalance } from "../../store/slices/accountSlice";
 
 
 export default function BalanceCard() {
 
   const dispatch = useDispatch();
-  const {balance,loading,error} = useSelector(
+  const { balance, loading, error } = useSelector(
     (state) => state.account
   )
-  
+
+  console.log("BALANCE FROM REDUX:", balance);
+  console.log("FULL ACCOUNT STATE:", { balance, loading, error });
+
   useEffect(() => {
     dispatch(fetchBalance());
   }, [dispatch]);
 
-  if(loading) {
+  if (loading) {
     return <p className="text-white">Loading....</p>
   }
 
-  if(error) {
+  if (error) {
     return <p className="text-red-500">Error: {error}</p>
   }
 
@@ -35,7 +38,7 @@ export default function BalanceCard() {
           </p>
 
           <h1 className="text-5xl font-bold mt-2">
-            ${balance.toFixed(2)}
+            ${Number(balance || 0).toFixed(2)}
           </h1>
         </div>
 

@@ -1,4 +1,5 @@
 const accountModel = require("../models/account.model");
+const ledgerModel = require("../models/ledger.model");
 
 async function createAccountController(req,res) {
 
@@ -6,6 +7,14 @@ async function createAccountController(req,res) {
 
     const account = await accountModel.create({
         user:user._id
+    })
+
+    //Initial ledger entry for the account
+    await ledgerModel.create({
+        account:account._id,
+        amount:10000, //initial balance
+        type:"CREDIT",
+        description:"Initial deposit"
     })
 
     res.status(201).json({

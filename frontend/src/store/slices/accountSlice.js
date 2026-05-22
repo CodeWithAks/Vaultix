@@ -11,7 +11,11 @@ export const fetchBalance = createAsyncThunk(
   "account/fetchBalance",
   async (_, thunkAPI) => {
     try {
-      const response = await axios.get("/api/account/balance");
+      const response = await axios.get("/api/accounts/balance");
+
+      console.log("FULL RESPONSE:", response);
+      console.log("RESPONSE DATA:", response.data);
+
 
       return response.data.balance;
     } catch (error) {
@@ -40,6 +44,7 @@ const accountSlice = createSlice({
 
       // success state
       .addCase(fetchBalance.fulfilled, (state, action) => {
+        console.log("PAYLOAD:", action.payload);
         state.loading = false;
         state.balance = action.payload;
       })

@@ -1,16 +1,8 @@
-import { ResponsiveContainer, BarChart, Bar, XAxis, Tooltip, } from "recharts";
+import { ResponsiveContainer, BarChart, Bar, XAxis, Tooltip, CartesianGrid, } from "recharts";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
 import { fetchMonthlyAnalytics } from "../../store/slices/analyticsSlice";
 
-// const data = [
-//   { month: "Jan", spending: 400 },   //one bar for each month
-//   { month: "Feb", spending: 700 },
-//   { month: "Mar", spending: 500 },
-//   { month: "Apr", spending: 900 },
-//   { month: "May", spending: 650 },
-//   { month: "Jun", spending: 850 },
-// ];
 
 export default function Analytics() {
   const dispatch = useDispatch();
@@ -21,8 +13,23 @@ export default function Analytics() {
     dispatch(fetchMonthlyAnalytics()); //jab component mount hoga tab monthly spending fetch krne ke liye action dispatch hoga
   }, [dispatch]);
 
+  //all months
+  const fullMonths = [
+    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+  ];
 
-  console.log("FINAL DATA:", data);
+  //fill missing months with 0 
+  const normalizedData = fullMonths.map((m) => {
+    const found  = data?.find((d) => d.month === m);
+
+    return {
+      month:m,
+      spending:found?found.spending:0,
+    }
+  });
+
+  console.log("NORMALIZED DATA:", normalizedData);
 
   if (loading) {
     return <p className="text-white">Loading....</p>
@@ -51,19 +58,40 @@ export default function Analytics() {
       </div>
 
       {/* Chart */}
-      <div className="h-80">
+      <div className="h-80 w-full">
 
+        <ResponsiveContainer width="100%" height="100%">
 
-        <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={data || []}>
-            <XAxis dataKey="month" />
+          <BarChart data={normalizedData}>
+
+            {/* grid */}
+            <CartesianGrid
+              strokeDasharray="3 3"
+              stroke="#27272a"
+            />
+
+            {/* x-axis */}
+            <XAxis
+              dataKey="month"
+              stroke="#a1a1aa"
+            />
+
+            {/* tooltip */}
             <Tooltip />
-            <Bar dataKey="spending" fill="#22d3ee" />
+
+            {/* bars */}
+            <Bar
+              dataKey="spending"
+              fill="#22d3ee"
+              barSize={22}
+              radius={[10, 10, 0, 0]}
+            />
+
           </BarChart>
+
         </ResponsiveContainer>
 
       </div>
-
     </div>
   );
 }

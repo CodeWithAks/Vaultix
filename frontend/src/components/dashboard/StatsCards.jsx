@@ -1,42 +1,55 @@
-import {
-  ArrowDownCircle,
-  ArrowUpCircle,
-  PiggyBank,
-  TrendingUp,
-} from "lucide-react";
+import { ArrowDownCircle, ArrowUpCircle, PiggyBank, TrendingUp, } from "lucide-react";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchStats } from "../../store/slices/statsSlice"
 
-const stats = [               //4 cards dummy data(store in array of objects) 
-  {
-    title: "Income",
-    amount: "+$8,420",
-    icon: ArrowDownCircle,
-    color: "text-green-400",
-    bg: "bg-green-400/10",
-  },
-  {
-    title: "Expenses",
-    amount: "-$3,280",
-    icon: ArrowUpCircle,
-    color: "text-red-400",
-    bg: "bg-red-400/10",
-  },
-  {
-    title: "Savings",
-    amount: "$12,500",
-    icon: PiggyBank,
-    color: "text-cyan-400",
-    bg: "bg-cyan-400/10",
-  },
-  {
-    title: "Investments",
-    amount: "+18%",
-    icon: TrendingUp,
-    color: "text-purple-400",
-    bg: "bg-purple-400/10",
-  },
-];
 
 export default function StatsCards() {
+
+  const dispatch = useDispatch();
+
+  const { income, expenses, savings, loading, error } = useSelector(
+    (state) => state.stats
+  );
+
+  useEffect(() => {
+    dispatch(fetchStats()); //api call 
+  }, [dispatch]);
+
+  const stats = [
+    {
+      title: "Income",
+      amount: `+₹${income}`,
+      icon: ArrowDownCircle,
+      color: "text-green-400",
+      bg: "bg-green-400/10",
+    },
+    {
+      title: "Expenses",
+      amount: `-₹${expenses}`,  
+      icon: ArrowUpCircle,
+      color: "text-red-400",
+      bg: "bg-red-400/10",
+    },
+    {
+      title: "Savings",
+      amount: `₹${savings}`,    
+      icon: PiggyBank,
+      color: "text-cyan-400",
+      bg: "bg-cyan-400/10",
+    }
+  ]
+
+  if (loading) {
+    return <p className="text-white">Loading....</p>
+  }
+
+  if (error) {
+    return <p className="text-red-500">Error: {error}</p>
+  }
+
+
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 mt-8">
 

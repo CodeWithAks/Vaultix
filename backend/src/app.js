@@ -11,6 +11,7 @@ const authRouter = require("./routes/auth.route");
 const accountRouter = require("./routes/account.routes");
 const transactionRoutes = require("./routes/transaction.routes");
 const analyticsRoutes = require("./routes/analytics.routes");
+const statsRoutes = require("./routes/stats.routes");
 
 const app = express();
 
@@ -32,4 +33,5 @@ app.use("/api/auth",authRouter);
 app.use("/api/accounts",accountRouter);
 app.use("/api/transactions",transactionRoutes);
 app.use("/api/analytics",analyticsRoutes);
+app.use("/api/stats", statsRoutes);
 module.exports = app;

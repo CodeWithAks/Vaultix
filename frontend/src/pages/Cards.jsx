@@ -1,23 +1,64 @@
 import React from "react";
 import DashboardLayout from "../components/layout/DashboardLayout";
 import { Lock, Wifi } from "lucide-react";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchCards } from "../store/slices/cardSlice";
 
-const cards = [
-  {
-    type: "Visa",
-    number: "**** 4829",
-    balance: "$12,540",
-    color: "from-cyan-500 to-blue-600",
-  },
-  {
-    type: "Mastercard",
-    number: "**** 1934",
-    balance: "$8,200",
-    color: "from-purple-500 to-pink-500",
-  },
-];
+// const cards = [
+//   {
+//     type: "Visa",
+//     number: "**** 4829",
+//     balance: "$12,540",
+//     color: "from-cyan-500 to-blue-600",
+//   },
+//   {
+//     type: "Mastercard",
+//     number: "**** 1934",
+//     balance: "$8,200",
+//     color: "from-purple-500 to-pink-500",
+//   },
+// ];
 
 export default function Cards() {
+  const dispatch = useDispatch();
+
+  const {cards,loading,error}  = useSelector((state) => state.cards);
+
+  useEffect(()=> {
+    dispatch(fetchCards());
+  },[dispatch]);
+
+  if (loading) {
+  return (
+    <DashboardLayout>
+      <p className="text-white">Loading cards...</p>
+    </DashboardLayout>
+  );
+}
+
+if (error) {
+  return (
+    <DashboardLayout>
+      <p className="text-red-500">Error: {error}</p>
+    </DashboardLayout>
+  );
+}
+
+  const getCardColor = (type) => {
+  switch (type) {
+    case "VISA":
+      return "from-cyan-500 to-blue-600";
+
+    case "MASTERCARD":
+      return "from-purple-500 to-pink-500";
+
+    default:
+      return "from-gray-500 to-gray-700";
+  }
+};
+  
+
   return (
     <DashboardLayout>
 
@@ -40,15 +81,15 @@ export default function Cards() {
 
           <div
             key={index}
-            className={`bg-gradient-to-br ${card.color} rounded-[32px] p-8 min-h-[240px] relative overflow-hidden shadow-2xl`}
+            className={`bg-gradient-to-br ${getCardColor(card.cardType)} rounded-[32px] p-8 min-h-[240px] relative overflow-hidden shadow-2xl`}
           >
 
             {/* Top */}
             <div className="flex justify-between items-center">
 
               <div className="bg-white/20 px-4 py-2 rounded-xl backdrop-blur-md">
-                {card.type}
-              </div>
+                {card.cardType}
+              </div>  
 
               <Wifi className="rotate-90" />
 
@@ -62,7 +103,7 @@ export default function Cards() {
               </p>
 
               <h2 className="text-3xl font-bold tracking-widest mt-2">
-                {card.number}
+                {card.cardNumber}
               </h2>
 
             </div>
@@ -77,7 +118,7 @@ export default function Cards() {
                 </p>
 
                 <h3 className="text-2xl font-bold mt-1">
-                  {card.balance}
+                 ₹{card.balance}
                 </h3>
 
               </div>

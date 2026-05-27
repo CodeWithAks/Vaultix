@@ -1,9 +1,17 @@
 import { Navigate } from "react-router-dom";
-import { isLoggedIn } from "../../utils/auth";
 
-export default function ProtectedRoute({ children }) { //jo bhi component protected route se wrap hoga wo children ke through pass hoga
-  if (!isLoggedIn()) { 
+import { useSelector } from "react-redux";
+
+export default function ProtectedRoute({
+  children,
+}) {
+
+  const { isAuthenticated } =
+    useSelector((state) => state.auth);
+
+  if (!isAuthenticated) {
     return <Navigate to="/login" />;
   }
-    return children; //agr logged in hai to children ko render karo
+
+  return children;
 }

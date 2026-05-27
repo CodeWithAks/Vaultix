@@ -1,5 +1,9 @@
 import React from 'react'
 import DashboardLayout from "../components/layout/DashboardLayout";
+import { useDispatch, useSelector } from 'react-redux';
+import { useEffect } from 'react';
+import { fetchStats } from "../store/slices/statsSlice";
+import { fetchMonthlyAnalytics } from "../store/slices/analyticsSlice";
 
 import {
   ResponsiveContainer,
@@ -13,30 +17,39 @@ import {
   CartesianGrid,
 } from "recharts";
 
-const spendingData = [
-  { name: "Food", value: 400 },
-  { name: "Shopping", value: 300 },
-  { name: "Bills", value: 200 },
-  { name: "Entertainment", value: 150 },
-];
-
 const COLORS = [
   "#06b6d4",
   "#3b82f6",
   "#8b5cf6",
-  "#ec4899",
 ];
 
-const incomeData = [
-  { month: "Jan", income: 2400 },
-  { month: "Feb", income: 1398 },
-  { month: "Mar", income: 9800 },
-  { month: "Apr", income: 3908 },
-  { month: "May", income: 4800 },
-  { month: "Jun", income: 3800 },
-];
 
 export default function Insights() {
+  const dispatch = useDispatch();
+
+  const stats = useSelector((state) => state.stats);
+  const { data } = useSelector((state) => state.analytics);
+
+  const pieData = [
+    {
+      name: "Income",
+      value: stats?.income || 0,
+    },
+    {
+      name: "Expenses",
+      value: stats?.expenses || 0,
+    },
+    {
+      name: "Savings",
+      value: stats?.savings || 0,
+    },
+  ];
+
+  useEffect(() => {
+    dispatch(fetchStats());
+    dispatch(fetchMonthlyAnalytics());
+  }, [dispatch]);
+
   return (
     <DashboardLayout>
 
@@ -62,7 +75,7 @@ export default function Insights() {
           </p>
 
           <h2 className="text-3xl font-bold mt-2">
-            $24,500
+            ₹{stats?.savings || 0}
           </h2>
         </div>
 
@@ -72,28 +85,21 @@ export default function Insights() {
           </p>
 
           <h2 className="text-3xl font-bold mt-2">
-            $3,280
+            ₹{stats?.expenses || 0}
           </h2>
         </div>
 
+
         <div className="bg-zinc-950 border border-zinc-800 rounded-3xl p-6">
+
           <p className="text-zinc-400 text-sm">
-            Investments
+            Total Income
           </p>
 
           <h2 className="text-3xl font-bold mt-2">
-            +18%
+            ₹{stats?.income || 0}
           </h2>
-        </div>
 
-        <div className="bg-zinc-950 border border-zinc-800 rounded-3xl p-6">
-          <p className="text-zinc-400 text-sm">
-            Cashback Earned
-          </p>
-
-          <h2 className="text-3xl font-bold mt-2">
-            $420
-          </h2>
         </div>
 
       </div>
@@ -105,7 +111,7 @@ export default function Insights() {
         <div className="bg-zinc-950 border border-zinc-800 rounded-3xl p-6">
 
           <h2 className="text-2xl font-semibold mb-6">
-            Spending Categories
+            Financial Distribution
           </h2>
 
           <div className="h-80">
@@ -115,13 +121,14 @@ export default function Insights() {
               <PieChart>
 
                 <Pie
-                  data={spendingData}
+                  data={pieData}
                   dataKey="value"
                   nameKey="name"
                   outerRadius={110}
+                  label
                 >
 
-                  {spendingData.map((entry, index) => (
+                  {pieData.map((entry, index) => (
                     <Cell
                       key={index}
                       fill={COLORS[index % COLORS.length]}
@@ -144,14 +151,14 @@ export default function Insights() {
         <div className="bg-zinc-950 border border-zinc-800 rounded-3xl p-6">
 
           <h2 className="text-2xl font-semibold mb-6">
-            Income Growth
+            Monthly Spending Analytics
           </h2>
 
           <div className="h-80">
 
             <ResponsiveContainer width="100%" height="100%">
 
-              <LineChart data={incomeData}>
+              <LineChart data={data}>
 
                 <CartesianGrid strokeDasharray="3 3" stroke="#27272a" />
 
@@ -161,7 +168,7 @@ export default function Insights() {
 
                 <Line
                   type="monotone"
-                  dataKey="income"
+                  dataKey="spending"
                   stroke="#06b6d4"
                   strokeWidth={4}
                 />

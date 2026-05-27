@@ -4,6 +4,7 @@ import transactionReducer from "./slices/transactionSlice";
 import analyticsReducer from "./slices/analyticsSlice";
 import statsReducer from "./slices/statsSlice";
 import cardReducer from "./slices/cardSlice";
+import authReducer from "./slices/authSlice";
 
 export const store = configureStore({
   reducer: { 
@@ -11,6 +12,7 @@ export const store = configureStore({
     transactions: transactionReducer,
     analytics: analyticsReducer,
     stats:statsReducer,
-    cards:cardReducer
+    cards:cardReducer,
+    auth: authReducer,
   },
 });

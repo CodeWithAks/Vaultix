@@ -6,7 +6,6 @@ const initialState = {
     expenses: 0,
     savings: 0,
     loading: false,
-    
     error: null
 };
 

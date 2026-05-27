@@ -7,8 +7,20 @@ import {
 } from "lucide-react";
 
 import { Link } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { logout } from "../../store/slices/authSlice";
 
 export default function Sidebar() {
+
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const handleLogout = async() => {
+    await dispatch(logout());
+    navigate("/login");
+  }
+
   return (
     <div className="w-64 min-h-screen bg-zinc-950 border-r border-zinc-800 p-6">
 
@@ -57,7 +69,7 @@ export default function Sidebar() {
       {/* Logout */}
       <div className="mt-20">
 
-        <button className="flex items-center gap-3 p-3 rounded-xl hover:bg-red-500/10 text-red-400 transition w-full">
+        <button onClick={handleLogout} className="flex items-center gap-3 p-3 rounded-xl hover:bg-red-500/10 text-red-400 transition w-full">
           <LogOut size={20} />
           Logout
         </button>

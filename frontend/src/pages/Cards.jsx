@@ -5,25 +5,12 @@ import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchCards } from "../store/slices/cardSlice";
 
-// const cards = [
-//   {
-//     type: "Visa",
-//     number: "**** 4829",
-//     balance: "$12,540",
-//     color: "from-cyan-500 to-blue-600",
-//   },
-//   {
-//     type: "Mastercard",
-//     number: "**** 1934",
-//     balance: "$8,200",
-//     color: "from-purple-500 to-pink-500",
-//   },
-// ];
 
 export default function Cards() {
   const dispatch = useDispatch();
 
   const {cards,loading,error}  = useSelector((state) => state.cards);
+  const { balance } = useSelector((state) => state.account);
 
   useEffect(()=> {
     dispatch(fetchCards());
@@ -118,7 +105,7 @@ if (error) {
                 </p>
 
                 <h3 className="text-2xl font-bold mt-1">
-                 ₹{card.balance}
+                 ₹{balance}
                 </h3>
 
               </div>

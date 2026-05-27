@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import {loginUser} from "../api/auth.api"; // Import the loginUser function
+import { useDispatch } from "react-redux";
+import { login } from "../store/slices/authSlice";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -8,20 +9,24 @@ export default function Login() {
 
   const navigate = useNavigate();
 
+  const dispatch = useDispatch();
+
   const handleLogin = async () => {
     try {
-      const response = await loginUser({ email, password }); // Call the loginUser function
+      const resultAction = await dispatch(
+        login({ email, password })
+      );
 
-      localStorage.setItem("token", response.token); // Store token in localStorage
-      localStorage.setItem("user", JSON.stringify(response.user)); // Store user data in localStorage
-      
-      console.log("Login successful:", response);
-      navigate("/dashboard"); 
+      if (login.fulfilled.match(resultAction)) {
+        navigate("/dashboard");
+      } else {
+        alert("Login failed");
+      }
+
     } catch (error) {
-      console.error("Login failed:", error);
-      alert("Login failed: " + (error.message || "Unknown error"));
+      console.error(error);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-black px-4">

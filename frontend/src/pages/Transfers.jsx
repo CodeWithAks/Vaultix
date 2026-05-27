@@ -1,26 +1,71 @@
-import React from "react";
+import React, { useState } from "react";
 import DashboardLayout from "../components/layout/DashboardLayout";
+import { createTransaction } from "../api/transaction.api";
+import { toast } from "react-toastify";
+import { fetchBalance } from "../store/slices/accountSlice";
+import { fetchTransactions } from "../store/slices/transactionSlice";
+import { useDispatch, useSelector } from "react-redux";
 
-const contacts = [
-  {
-    name: "Sarah",
-    initials: "SJ",
-  },
-  {
-    name: "Mike",
-    initials: "MC",
-  },
-  {
-    name: "Emma",
-    initials: "ED",
-  },
-  {
-    name: "Alex",
-    initials: "AW",
-  },
-];
 
 export default function Transfers() {
+  const dispatch = useDispatch();
+  const [recipient, setRecipient] = useState("");
+  const [amount, setAmount] = useState("");
+  const [note, setNote] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const { transactions } = useSelector((state) => state.transactions);
+
+  //recent contacts
+  const recentContacts =
+    transactions
+      ?.filter((tx) => tx.toAccount?.user)
+      ?.map((tx) => ({
+        name: tx.toAccount.user.name,
+        email: tx.toAccount.user.email,
+      })) || [];
+
+  const uniqueContacts = [
+    ...new Map(
+      recentContacts.map((contact) => [
+        contact.email,
+        contact,
+      ])
+    ).values(),
+  ];
+
+  const handleSendMoney = async () => {
+    try {
+      setLoading(true);
+
+      await createTransaction({
+        toAccount: recipient,
+        amount,
+        note,
+        idempotencyKey: crypto.randomUUID(),
+      });
+
+      dispatch(fetchBalance());
+      dispatch(fetchTransactions());
+
+      toast.success("Money sent successfully!");
+
+      setRecipient("");
+      setAmount("");
+      setNote("");
+
+    } catch (err) {
+      console.log(err);
+      toast.error(
+      err?.response?.data?.message ||
+      "Transaction failed"
+    );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
   return (
     <DashboardLayout>
 
@@ -46,7 +91,9 @@ export default function Transfers() {
 
             <input
               type="text"
-              placeholder="Enter recipient"
+              value={recipient}
+              placeholder="Enter recipient email"
+              onChange={(e) => setRecipient(e.target.value)}
               className="w-full bg-zinc-900 border border-zinc-800 rounded-2xl px-4 py-4 outline-none"
             />
 
@@ -61,7 +108,9 @@ export default function Transfers() {
 
             <input
               type="number"
+              value={amount}
               placeholder="$0.00"
+              onChange={(e) => setAmount(e.target.value)}
               className="w-full bg-zinc-900 border border-zinc-800 rounded-2xl px-4 py-4 outline-none"
             />
 
@@ -76,17 +125,26 @@ export default function Transfers() {
 
             <textarea
               placeholder="Add note..."
+              value={note}
               rows="4"
+              onChange={(e) => setNote(e.target.value)}
               className="w-full bg-zinc-900 border border-zinc-800 rounded-2xl px-4 py-4 outline-none resize-none"
             />
 
           </div>
 
           {/* Button */}
-          <button className="w-full bg-cyan-400 text-black font-semibold py-4 rounded-2xl hover:bg-cyan-300 transition-all">
+          {/* <button className="w-full bg-cyan-400 text-black font-semibold py-4 rounded-2xl hover:bg-cyan-300 transition-all">
 
             Send Money
 
+          </button> */}
+          <button
+            className="w-full bg-cyan-400 text-black font-semibold py-4 rounded-2xl hover:bg-cyan-300 transition-all"
+            onClick={handleSendMoney}
+            disabled={loading}
+          >
+            {loading ? "Sending..." : "Send Money"}
           </button>
 
         </div>
@@ -100,25 +158,30 @@ export default function Transfers() {
 
           <div className="flex flex-col gap-4">
 
-            {contacts.map((contact, index) => (
+            {uniqueContacts.map((contact, index) => (
 
               <div
-                key={index} 
-                className="flex items-center gap-4 bg-zinc-900 rounded-2xl p-4 hover:bg-zinc-800 transition"
+                key={index}
+                onClick={() => setRecipient(contact.email)}
+                className="flex items-center gap-4 bg-zinc-900 rounded-2xl p-4 hover:bg-zinc-800 transition cursor-pointer"
               >
 
                 <div className="bg-cyan-400 text-black h-12 w-12 rounded-full flex items-center justify-center font-bold">
-                  {contact.initials}
+
+                  {contact.name.slice(0, 2).toUpperCase()}
+
                 </div>
 
                 <div>
+
                   <h3 className="font-medium">
                     {contact.name}
                   </h3>
 
                   <p className="text-sm text-zinc-400">
-                    Recent transfer
+                    {contact.email}
                   </p>
+
                 </div>
 
               </div>

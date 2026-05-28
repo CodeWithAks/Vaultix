@@ -161,6 +161,23 @@ async function createTransaction(req, res) {
             await session.commitTransaction();
             session.endSession();
 
+            // BOTH EMAILS HERE
+            await emailService.sendTransactionEmail(
+                req.user.email,
+                req.user.name,
+                amount,
+                toUser.email
+            );
+
+            await emailService.sendTransactionEmail(
+                toUser.email,
+                toUser.name,
+                amount,
+                req.user.email
+            );
+
+
+
         } catch (error) {
             console.error(error);
             /**

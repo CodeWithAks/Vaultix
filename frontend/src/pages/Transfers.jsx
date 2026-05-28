@@ -5,7 +5,8 @@ import { toast } from "react-toastify";
 import { fetchBalance } from "../store/slices/accountSlice";
 import { fetchTransactions } from "../store/slices/transactionSlice";
 import { useDispatch, useSelector } from "react-redux";
-
+import { useEffect } from "react";
+import api from "../api/axios";
 
 export default function Transfers() {
   const dispatch = useDispatch();
@@ -13,6 +14,40 @@ export default function Transfers() {
   const [amount, setAmount] = useState("");
   const [note, setNote] = useState("");
   const [loading, setLoading] = useState(false);
+
+  //searching
+  const [search, setSearch] = useState("");
+  const [users, setUsers] = useState([]);
+  const [selectedUser, setSelectedUser] = useState(null);
+
+  useEffect(() => {
+
+    const delay = setTimeout(async () => {
+
+      if (search.length < 2) {
+        setUsers([]);
+        return;
+      }
+
+      try {
+
+        const res = await api.get(
+          `/users/search?query=${search}`
+        );
+
+        setUsers(res.data);
+
+      } catch (err) {
+
+        console.log(err);
+
+      }
+
+    }, 300);
+
+    return () => clearTimeout(delay);
+
+  }, [search]);
 
   const { transactions } = useSelector((state) => state.transactions);
 
@@ -35,12 +70,18 @@ export default function Transfers() {
   ];
 
   const handleSendMoney = async () => {
+
+    if (!selectedUser) {
+      toast.error("Please select a user");
+      return;
+    }
+
     try {
       setLoading(true);
 
       await createTransaction({
-        toAccount: recipient,
-        amount,
+        toAccount: selectedUser.email,
+        amount: Number(amount),
         note,
         idempotencyKey: crypto.randomUUID(),
       });
@@ -50,16 +91,18 @@ export default function Transfers() {
 
       toast.success("Money sent successfully!");
 
-      setRecipient("");
+      setSearch("");
+      setSelectedUser(null);
       setAmount("");
       setNote("");
+      setUsers([]);
 
     } catch (err) {
       console.log(err);
       toast.error(
-      err?.response?.data?.message ||
-      "Transaction failed"
-    );
+        err?.response?.data?.message ||
+        "Transaction failed"
+      );
     } finally {
       setLoading(false);
     }
@@ -91,11 +134,47 @@ export default function Transfers() {
 
             <input
               type="text"
-              value={recipient}
-              placeholder="Enter recipient email"
-              onChange={(e) => setRecipient(e.target.value)}
+              value={search}
+              placeholder="Search user by name/email"
+              onChange={(e) => setSearch(e.target.value)}
               className="w-full bg-zinc-900 border border-zinc-800 rounded-2xl px-4 py-4 outline-none"
             />
+
+            {users.length > 0 && (
+
+              <div className="bg-zinc-900 border border-zinc-700 rounded-xl mt-2 overflow-hidden">
+
+                {users.map((u) => (
+
+                  <div
+                    key={u.email}
+                    onClick={() => {
+
+                      setSelectedUser(u);
+
+                      setSearch(
+                        `${u.name} (${u.email})`
+                      );
+
+                      setUsers([]);
+
+                    }}
+                    className="p-3 hover:bg-zinc-800 cursor-pointer transition"
+                  >
+                    <p className="text-white font-medium">
+                      {u.name}
+                    </p>
+
+                    <p className="text-zinc-400 text-sm">
+                      {u.email}
+                    </p>
+                  </div>
+
+                ))}
+
+              </div>
+
+            )}
 
           </div>
 
@@ -162,7 +241,12 @@ export default function Transfers() {
 
               <div
                 key={index}
-                onClick={() => setRecipient(contact.email)}
+                onClick={() => {
+                  setSelectedUser(contact);
+                  setSearch(
+                    `${contact.name} (${contact.email})`
+                  );
+                }}
                 className="flex items-center gap-4 bg-zinc-900 rounded-2xl p-4 hover:bg-zinc-800 transition cursor-pointer"
               >
 

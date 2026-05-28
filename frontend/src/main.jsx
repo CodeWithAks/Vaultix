@@ -13,7 +13,12 @@ createRoot(document.getElementById('root')).render(
     <Provider store={store}>
       <App />
     </Provider>
-    <ToastContainer />
+    <ToastContainer
+      position="top-right"
+      autoClose={2000}
+      theme="dark"
+      hideProgressBar={true}
+    />
   </StrictMode>,
 )
 

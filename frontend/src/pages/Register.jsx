@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import {registerUser} from "../api/auth.api"; // Import the registerUser function
+import { registerUser } from "../api/auth.api"; // Import the registerUser function
+import { toast } from "react-toastify";
 
 export default function Register() {
   const [email, setEmail] = useState("");
@@ -10,17 +11,18 @@ export default function Register() {
   const navigate = useNavigate();
 
   const handleRegister = async () => {
-    try{
-      const response =await registerUser({
+    try {
+      const response = await registerUser({
         name: fullName,
         email,
         password
-      }); 
-      console.log("Registration successful:", response);
-      navigate("/login"); 
+      });
+      toast.success("Account created successfully!");
+      navigate("/login");
     } catch (error) {
-      console.error("Registration failed:", error);
-      alert("Registration failed: " + (error.message || "Unknown error"));
+      toast.error(
+        error.message || "Registration failed"
+      );
     }
   }
 

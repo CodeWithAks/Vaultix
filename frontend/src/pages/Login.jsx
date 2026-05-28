@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { login } from "../store/slices/authSlice";
+import { toast } from "react-toastify";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -18,13 +19,16 @@ export default function Login() {
       );
 
       if (login.fulfilled.match(resultAction)) {
+        toast.success("Login successful!");
         navigate("/dashboard");
       } else {
-        alert("Login failed");
+        toast.error(
+          resultAction.payload || "Login failed"
+        );
       }
 
     } catch (error) {
-      console.error(error);
+      toast.error("Something went wrong");
     }
   };
 

@@ -13,6 +13,7 @@ const transactionRoutes = require("./routes/transaction.routes");
 const analyticsRoutes = require("./routes/analytics.routes");
 const statsRoutes = require("./routes/stats.routes");
 const cardRoutes = require("./routes/card.routes");
+const userRoutes = require("./routes/user.routes");
 
 const app = express();
 
@@ -36,4 +37,5 @@ app.use("/api/transactions",transactionRoutes);
 app.use("/api/analytics",analyticsRoutes);
 app.use("/api/stats", statsRoutes);
 app.use("/api/cards",cardRoutes);
+app.use("/api/users", userRoutes);
 module.exports = app;

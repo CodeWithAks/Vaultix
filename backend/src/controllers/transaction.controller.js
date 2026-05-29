@@ -195,12 +195,12 @@ async function createTransaction(req, res) {
         /**
          * 11. Send email notification
          */
-        await emailService.sendTransactionEmail(
-            req.user.email,
-            req.user.name,
-            amount,
-            toAccount
-        );
+        // await emailService.sendTransactionEmail(
+        //     req.user.email,
+        //     req.user.name,
+        //     amount,
+        //     toAccount
+        // );
 
         return res.status(201).json({
             message: "Transaction successful",

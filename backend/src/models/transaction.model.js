@@ -4,7 +4,7 @@ const transactionSchema = new mongoose.Schema({
     fromAccount: {
         type: mongoose.Schema.Types.ObjectId, //ye account collection ke object id ko reference karega
         ref: 'account', //mtlb ki 
-        required: [true,"Transaction must be associated with a from account"],
+        required: false,
         index:true
     },
     toAccount: {     

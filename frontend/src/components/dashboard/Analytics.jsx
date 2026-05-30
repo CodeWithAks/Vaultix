@@ -50,7 +50,7 @@ export default function Analytics() {
         </h2>
 
         <p className="text-zinc-400 mt-1">
-          Your spending pattern over 6 months
+          Your spending pattern over 12 months
         </p>
 
       </div>

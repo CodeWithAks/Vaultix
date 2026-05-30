@@ -20,14 +20,14 @@ const app = express();
 /**
  * - Middlewares
  */
-// app.use(cors({
-//     origin: "http://localhost:5173", 
-//     credentials: true, // Allow cookies to be sent with requests
-// }))
 app.use(cors({
-    origin: true,
-    credentials: true
+  origin: [
+    "http://localhost:5173",
+    "https://vaultix-five.vercel.app"
+  ],
+  credentials: true
 }));
+
 
 app.use(express.json());
 app.use(cookieParser());

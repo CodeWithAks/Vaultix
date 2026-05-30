@@ -46,7 +46,12 @@ async function userRegisterController(req, res) {
 
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: "3d" });
 
-    res.cookie("token", token); //token ko cookies mei save kiya 
+
+    res.cookie("token", token, {     //token ko cookies mei save kiya 
+        httpOnly: true,
+        secure: true,
+        sameSite: "none",
+    });
 
     res.status(201).json({
         user: {
@@ -82,7 +87,12 @@ async function userLoginController(req, res) {
     }
 
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: "3d" });
-    res.cookie("token", token);
+
+    res.cookie("token", token, {
+        httpOnly: true,
+        secure: true,
+        sameSite: "none",
+    });
 
     res.status(200).json({
         user: {
@@ -104,7 +114,12 @@ async function userLogoutController(req, res) {
         })
     }
 
-    res.cookie("token", "") // pehle yha se remove kya taki client side se bhi token remove ho jaye
+    res.cookie("token", "", {  // pehle yha se remove kya taki client side se bhi token remove ho jaye
+        httpOnly: true,
+        secure: true,
+        sameSite: "none",
+        expires: new Date(0),
+    });
 
     await tokenBlacklistModel.create({
         token: token //blacklist mei token add kar diya taki wo token future mei use na ho sake

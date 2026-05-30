@@ -12,7 +12,7 @@ export default function DashboardLayout({ children }) {
         <Sidebar />
       </div>
 
-      <div className="flex-1 p-4 md:p-8">
+      <div className="flex-1 w-full px-4 md:px-6 py-4 md:py-6">
         <TopNavbar onMenuClick={() => setSidebarOpen(true)} />
         {children}
       </div>

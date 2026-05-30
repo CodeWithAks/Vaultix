@@ -7,7 +7,6 @@ import { fetchMonthlyAnalytics } from "../../store/slices/analyticsSlice";
 export default function Analytics() {
   const dispatch = useDispatch();
   const { data, loading, error } = useSelector((state) => state.analytics); //analytics slice se data, loading, error le rhe h
-  console.log("ANALYTICS DATA:", data);
 
   useEffect(() => {
     dispatch(fetchMonthlyAnalytics()); //jab component mount hoga tab monthly spending fetch krne ke liye action dispatch hoga
@@ -29,7 +28,6 @@ export default function Analytics() {
     }
   });
 
-  console.log("NORMALIZED DATA:", normalizedData);
 
   if (loading) {
     return <p className="text-white">Loading....</p>

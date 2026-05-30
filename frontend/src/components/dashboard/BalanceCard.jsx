@@ -11,8 +11,6 @@ export default function BalanceCard() {
     (state) => state.account
   )
 
-  console.log("BALANCE FROM REDUX:", balance);
-  console.log("FULL ACCOUNT STATE:", { balance, loading, error });
 
   useEffect(() => {
     dispatch(fetchBalance());

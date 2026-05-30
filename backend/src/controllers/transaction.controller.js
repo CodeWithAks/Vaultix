@@ -36,9 +36,6 @@ async function createTransaction(req, res) {
      * 2. Fetch accounts
      */
     try {
-        console.log("FROM USER:", req.user);
-        console.log("FROM ACCOUNT ID:", req.user.account);
-        // const fromUserAccount = await accountModel.findById(fromAccount);
         const fromUserAccount = await accountModel.findOne({
             user: req.user._id
         });
@@ -51,13 +48,6 @@ async function createTransaction(req, res) {
         const toUserAccount = await accountModel.findOne({
             user: toUser?._id
         });
-
-        console.log("FROM ACCOUNT DB:", fromUserAccount);
-        console.log("TO USER:", toUser);
-        console.log("TO USER ACCOUNT:", toUserAccount);
-        // const toUserAccount = await accountModel.findOne({
-        //     "user.email": toAccount //isse 
-        // })
 
         if (!fromUserAccount) {
             return res.status(400).json({ message: "Sender account not found" });
@@ -192,15 +182,6 @@ async function createTransaction(req, res) {
             });
         }
 
-        /**
-         * 11. Send email notification
-         */
-        // await emailService.sendTransactionEmail(
-        //     req.user.email,
-        //     req.user.name,
-        //     amount,
-        //     toAccount
-        // );
 
         return res.status(201).json({
             message: "Transaction successful",
@@ -224,7 +205,6 @@ async function createTransaction(req, res) {
  * Get transactions for the authenticated user's account
  */
 async function getTransactions(req, res) {
-    console.log("REQ USER:", req.user);
     try {
         const transactions = await transactionModel.find({
             $or: [

@@ -26,7 +26,6 @@ export default function QuickTransfer() {
                 amount: Number(amount),
                 idempotencyKey: crypto.randomUUID()
             })
-            console.log("Transaction successful:", data);
             toast.success("Transaction successful!");
 
             dispatch(fetchBalance());
@@ -59,7 +58,7 @@ export default function QuickTransfer() {
 
                 <input
                     type="email"
-                    placeholder="Enter recipient email"
+                    placeholder="Enter recipient email (e.g. user@example.com)"
                     value={recipient}
                     onChange={(e) => setRecipient(e.target.value)}
                     className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 outline-none"

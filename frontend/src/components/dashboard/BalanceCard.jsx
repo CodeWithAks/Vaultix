@@ -36,7 +36,7 @@ export default function BalanceCard() {
           </p>
 
           <h1 className="text-5xl font-bold mt-2">
-            ${Number(balance || 0).toFixed(2)}
+            ₹{Number(balance || 0).toFixed(2)}
           </h1>
         </div>
 

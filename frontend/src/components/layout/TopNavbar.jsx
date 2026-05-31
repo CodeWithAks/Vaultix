@@ -1,8 +1,10 @@
 import { Bell, Search, Menu } from "lucide-react";
 import React from "react";
-
+import { useSelector } from "react-redux";
 
 export default function TopNavbar({ onMenuClick }) {
+
+  const user = useSelector((state) => state.auth.user);
 
   const greeting = () => {
     const hour = new Date().getHours();
@@ -18,7 +20,7 @@ export default function TopNavbar({ onMenuClick }) {
       <div className="flex items-center justify-between gap-4 w-full sm:w-auto">
         <div>
           <h1 className="text-3xl font-bold">Dashboard</h1>
-          <p className="text-zinc-400 mt-1">{greeting()}, Akshara👋</p>
+          <p className="text-zinc-400 mt-1">{greeting()},  {user?.name || "User"} 👋</p>
         </div>
 
         <button

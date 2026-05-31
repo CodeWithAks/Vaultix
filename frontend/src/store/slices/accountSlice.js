@@ -1,5 +1,5 @@
 import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
-import axios from "axios";
+import api from "../../api/axios";
 
 const initialState = {
     balance:0,
@@ -11,7 +11,7 @@ export const fetchBalance = createAsyncThunk(
   "account/fetchBalance",
   async (_, thunkAPI) => {
     try {
-      const response = await axios.get("/api/accounts/balance");
+      const response = await api.get("/accounts/balance");
 
       console.log("FULL RESPONSE:", response);
       console.log("RESPONSE DATA:", response.data);

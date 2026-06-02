@@ -90,8 +90,8 @@ export default function Transfers() {
         idempotencyKey: crypto.randomUUID(),
       });
 
-      dispatch(fetchBalance());
-      dispatch(fetchTransactions());
+      // dispatch(fetchBalance());
+      // dispatch(fetchTransactions());
 
       toast.success("Money sent successfully!");
 

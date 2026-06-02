@@ -56,7 +56,7 @@ export default function Transfers() {
     transactions
       ?.filter(
         (tx) =>
-          tx.fromAccount?.user?.email !== "system@vaultix.com" &&
+          tx.fromAccount?.user?.email !== "vaultix@system.com" &&
           tx.toAccount?.user
       )
       ?.map((tx) => ({

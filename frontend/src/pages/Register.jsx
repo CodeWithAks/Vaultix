@@ -20,6 +20,10 @@ export default function Register() {
       });
       toast.success("Account created successfully!");
       navigate("/login");
+      sessionStorage.setItem(
+        "welcomeBonusToast",
+        "true"
+      );
     } catch (error) {
       toast.error(
         error.message || "Registration failed"

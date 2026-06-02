@@ -4,8 +4,31 @@ import Analytics from "../components/dashboard/Analytics";
 import QuickTransfer from "../components/dashboard/QuickTransfer";
 import Transactions from "../components/dashboard/Transactions";
 import StatsCards from "../components/dashboard/StatsCards";
+import { useEffect } from "react";
+import { toast } from "react-toastify";
 
 export default function Dashboard() {
+
+  useEffect(() => {
+
+    const shouldShowBonus =
+      sessionStorage.getItem(
+        "welcomeBonusToast"
+      );
+
+    if (shouldShowBonus) {
+
+      toast.success(
+        "🎉 ₹10,000 Welcome Bonus Added!"
+      );
+
+      sessionStorage.removeItem(
+        "welcomeBonusToast"
+      );
+    }
+
+  }, []);
+
   return (
     <DashboardLayout>
 

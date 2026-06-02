@@ -156,26 +156,35 @@ export default function Insights() {
 
           <div className="h-80">
 
-            <ResponsiveContainer width="100%" height="100%">
+            {!data || data.length === 0 ? (
 
-              <LineChart data={data}>
+              <div className="h-full flex items-center justify-center text-zinc-500">
+                No spending analytics available yet.
+              </div>
 
-                <CartesianGrid strokeDasharray="3 3" stroke="#27272a" />
+            ) : (
 
-                <XAxis dataKey="month" />
+              <ResponsiveContainer width="100%" height="100%">
 
-                <Tooltip />
+                <LineChart data={data}>
 
-                <Line
-                  type="monotone"
-                  dataKey="spending"
-                  stroke="#06b6d4"
-                  strokeWidth={4}
-                />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#27272a" />
 
-              </LineChart>
+                  <XAxis dataKey="month" />
 
-            </ResponsiveContainer>
+                  <Tooltip />
+
+                  <Line
+                    type="monotone"
+                    dataKey="spending"
+                    stroke="#06b6d4"
+                    strokeWidth={4}
+                  />
+
+                </LineChart>
+
+              </ResponsiveContainer>
+            )}
 
           </div>
 

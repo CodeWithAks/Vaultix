@@ -4,6 +4,11 @@ const { sendRegistrationEmail } = require("../services/email.service");
 const tokenBlacklistModel = require("../models/blackList.model");
 const accountModel = require("../models/account.model");
 const cardModel = require("../models/card.model");
+const ledgerModel = require("../models/ledger.model");
+const transactionModel = require("../models/transaction.model");
+const crypto = require("crypto");
+
+const SYSTEM_USER_ID = process.env.SYSTEM_USER_ID;
 
 //POST method api-> /api/auth/register
 async function userRegisterController(req, res) {
@@ -25,11 +30,38 @@ async function userRegisterController(req, res) {
         email, password, name
     });
 
-    await accountModel.create({
+    const account = await accountModel.create({
         user: user._id,
         status: "ACTIVE",
         currency: "INR",
-    })
+    });
+
+    // FIND VAULTIX SYSTEM ACCOUNT
+    const systemAccount = await accountModel.findOne({
+        user: SYSTEM_USER_ID
+    });
+
+
+    // GIVE WELCOME BONUS
+    if (systemAccount) {
+        const welcomeTx = await transactionModel.create({
+            fromAccount: systemAccount._id,
+            toAccount: account._id,
+            amount: 10000,
+            idempotencyKey: crypto.randomUUID(),
+            status: "COMPLETED"
+        });
+
+        await ledgerModel.create({
+            account: account._id,
+            amount: 10000,
+            transaction: welcomeTx._id,
+            type: "CREDIT"
+        });
+    } else {
+        console.log("SYSTEM ACCOUNT NOT FOUND");
+    }
+
 
     try {
         await cardModel.create({
@@ -62,7 +94,9 @@ async function userRegisterController(req, res) {
         token
     })
 
-    await sendRegistrationEmail(user.email, user.name);
+    // await sendRegistrationEmail(user.email, user.name);
+    sendRegistrationEmail(user.email, user.name)
+        .catch(console.error);
 
 }
 

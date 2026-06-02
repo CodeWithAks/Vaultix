@@ -54,7 +54,11 @@ export default function Transfers() {
   //recent contacts
   const recentContacts =
     transactions
-      ?.filter((tx) => tx.toAccount?.user)
+      ?.filter(
+        (tx) =>
+          tx.fromAccount?.user?.email !== "system@vaultix.com" &&
+          tx.toAccount?.user
+      )
       ?.map((tx) => ({
         name: tx.toAccount.user.name,
         email: tx.toAccount.user.email,
@@ -212,12 +216,7 @@ export default function Transfers() {
 
           </div>
 
-          {/* Button */}
-          {/* <button className="w-full bg-cyan-400 text-black font-semibold py-4 rounded-2xl hover:bg-cyan-300 transition-all">
 
-            Send Money
-
-          </button> */}
           <button
             className="w-full bg-cyan-400 text-black font-semibold py-4 rounded-2xl hover:bg-cyan-300 transition-all"
             onClick={handleSendMoney}
@@ -237,40 +236,57 @@ export default function Transfers() {
 
           <div className="flex flex-col gap-4">
 
-            {uniqueContacts.map((contact, index) => (
+            {uniqueContacts.length === 0 ? (
 
-              <div
-                key={index}
-                onClick={() => {
-                  setSelectedUser(contact);
-                  setSearch(
-                    `${contact.name} (${contact.email})`
-                  );
-                }}
-                className="flex items-center gap-4 bg-zinc-900 rounded-2xl p-4 hover:bg-zinc-800 transition cursor-pointer"
-              >
+              <div className="bg-zinc-900 rounded-2xl p-6 text-center border border-zinc-800">
 
-                <div className="bg-cyan-400 text-black h-12 w-12 rounded-full flex items-center justify-center font-bold">
+                <h3 className="text-zinc-300 font-medium">
+                  No recent contacts yet
+                </h3>
 
-                  {contact.name.slice(0, 2).toUpperCase()}
-
-                </div>
-
-                <div>
-
-                  <h3 className="font-medium">
-                    {contact.name}
-                  </h3>
-
-                  <p className="text-sm text-zinc-400">
-                    {contact.email}
-                  </p>
-
-                </div>
+                <p className="text-zinc-500 text-sm mt-2">
+                  Transfer money to start building your contact list.
+                </p>
 
               </div>
 
-            ))}
+            ) : (
+
+              uniqueContacts.map((contact, index) => (
+
+                <div
+                  key={index}
+                  onClick={() => {
+                    setSelectedUser(contact);
+                    setSearch(
+                      `${contact.name} (${contact.email})`
+                    );
+                  }}
+                  className="flex items-center gap-4 bg-zinc-900 rounded-2xl p-4 hover:bg-zinc-800 transition cursor-pointer"
+                >
+
+                  <div className="bg-cyan-400 text-black h-12 w-12 rounded-full flex items-center justify-center font-bold">
+
+                    {contact.name.slice(0, 2).toUpperCase()}
+
+                  </div>
+
+                  <div>
+
+                    <h3 className="font-medium">
+                      {contact.name}
+                    </h3>
+
+                    <p className="text-sm text-zinc-400">
+                      {contact.email}
+                    </p>
+
+                  </div>
+
+                </div>
+
+              ))
+            )}
 
           </div>
 

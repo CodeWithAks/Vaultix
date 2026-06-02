@@ -105,7 +105,7 @@ if (error) {
                 </p>
 
                 <h3 className="text-2xl font-bold mt-1">
-                 ₹{card.balance ?? 0}
+                 ₹{balance}
                 </h3>
 
               </div>

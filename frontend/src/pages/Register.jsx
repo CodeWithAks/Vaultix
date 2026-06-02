@@ -4,6 +4,7 @@ import { registerUser } from "../api/auth.api"; // Import the registerUser funct
 import { toast } from "react-toastify";
 
 export default function Register() {
+  console.log("REGISTER ROUTE HIT");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");

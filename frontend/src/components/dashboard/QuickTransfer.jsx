@@ -5,13 +5,50 @@ import { fetchMonthlyAnalytics } from "../../store/slices/analyticsSlice";
 import { toast } from "react-toastify";
 import { useState } from "react";
 import { createTransaction } from "../../api/transaction.api";
+import { useSelector } from "react-redux";
+import { Link } from "react-router-dom";
 
 
 export default function QuickTransfer() {
     const dispatch = useDispatch();
+    const { user } = useSelector((state) => state.auth);
+    const { transactions, currentAccount } = useSelector((state) => state.transactions);
     const [recipient, setRecipient] = useState("");
     const [amount, setAmount] = useState("");
     const [loading, setLoading] = useState(false);
+
+    const recentContacts =
+        transactions?.flatMap((tx) => {
+            const contacts = [];
+
+            if (
+                tx?.fromAccount?.user &&
+                tx.fromAccount.user.name !== "Vaultix"
+            ) {
+                contacts.push(tx.fromAccount.user);
+            }
+
+            if (
+                tx?.toAccount?.user &&
+                tx.toAccount.user.name !== "Vaultix"
+            ) {
+                contacts.push(tx.toAccount.user);
+            }
+
+            return contacts;
+        }) || [];
+
+    const uniqueContacts = [
+        ...new Map(
+            recentContacts
+                .filter((contact) => contact.email !== user?.email)
+                .map((contact) => [
+                    contact.email,
+                    contact,
+                ])
+        ).values(),
+    ];
+
 
     const handleTransfer = async () => {
         try {
@@ -19,9 +56,12 @@ export default function QuickTransfer() {
                 toast.error("Please fill all fields");
                 return;
             }
+            if (Number(amount) <= 0) {
+                toast.error("Amount must be greater than 0");
+                return;
+            }
             setLoading(true);
             const data = await createTransaction({
-                // toAccount: recipient,
                 toAccount: recipient.trim().toLowerCase(),
                 amount: Number(amount),
                 idempotencyKey: crypto.randomUUID()
@@ -58,12 +98,25 @@ export default function QuickTransfer() {
 
                 <input
                     type="email"
-                    placeholder="Enter recipient email (e.g. user@example.com)"
+                    placeholder="Enter recipient email"
                     value={recipient}
                     onChange={(e) => setRecipient(e.target.value)}
                     className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 outline-none"
                 />
 
+            </div>
+
+            <div className="flex flex-wrap gap-2 mb-4">
+                {uniqueContacts.slice(0, 5).map((contact) => (
+                    <button
+                        key={contact.email}
+                        type="button"
+                        onClick={() => setRecipient(contact.email)}
+                        className="bg-zinc-800 px-3 py-2 rounded-lg text-sm hover:bg-zinc-700"
+                    >
+                        {contact.name}
+                    </button>
+                ))}
             </div>
 
             {/* Amount Input */}
@@ -89,6 +142,14 @@ export default function QuickTransfer() {
             >
                 {loading ? "Processing..." : "Transfer"}
             </button>
+
+            {/* Advanced Transfer Link */}
+            <Link
+                to="/transfers"
+                className="text-cyan-400 text-sm mt-3 block text-center hover:underline"
+            >
+                Advanced Transfer →
+            </Link>
         </div>
     );
 }

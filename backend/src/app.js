@@ -26,7 +26,7 @@ app.use(cors({
     "https://vaultix-five.vercel.app"
   ],
   credentials: true
-}));
+})); 
 
 
 app.use(express.json());

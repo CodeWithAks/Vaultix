@@ -93,7 +93,7 @@ export default function Transactions() {
                       : "text-green-400"
                     }`}
                 >
-                  {isSender ? "-" : "+"}${transaction.amount}
+                  {isSender ? "-" : "+"}₹{transaction.amount}
                 </p>
 
                 <p className="text-sm text-green-400">

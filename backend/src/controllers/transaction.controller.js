@@ -152,19 +152,19 @@ async function createTransaction(req, res) {
             session.endSession();
 
             // BOTH EMAILS HERE
-            await emailService.sendTransactionEmail(
-                req.user.email,
-                req.user.name,
-                amount,
-                toUser.email
-            );
+            // await emailService.sendTransactionEmail(
+            //     req.user.email,
+            //     req.user.name,
+            //     amount,
+            //     toUser.email
+            // );
 
-            await emailService.sendTransactionEmail(
-                toUser.email,
-                toUser.name,
-                amount,
-                req.user.email
-            );
+            // await emailService.sendTransactionEmail(
+            //     toUser.email,
+            //     toUser.name,
+            //     amount,
+            //     req.user.email
+            // );
 
 
 

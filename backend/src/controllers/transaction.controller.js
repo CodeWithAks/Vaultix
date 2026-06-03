@@ -151,21 +151,27 @@ async function createTransaction(req, res) {
             await session.commitTransaction();
             session.endSession();
 
-            // BOTH EMAILS HERE
-            // await emailService.sendTransactionEmail(
-            //     req.user.email,
-            //     req.user.name,
-            //     amount,
-            //     toUser.email
-            // );
 
-            // await emailService.sendTransactionEmail(
-            //     toUser.email,
-            //     toUser.name,
-            //     amount,
-            //     req.user.email
-            // );
+            res.status(201).json({
+                message: "Transaction successful",
+                transaction
+            });
 
+            emailService.sendTransactionEmail(
+                req.user.email,
+                req.user.name,
+                amount,
+                toUser.email
+            ).catch(console.error);
+
+            emailService.sendTransactionEmail(
+                toUser.email,
+                toUser.name,
+                amount,
+                req.user.email
+            ).catch(console.error);
+
+            return;
 
 
         } catch (error) {
@@ -181,12 +187,6 @@ async function createTransaction(req, res) {
                 error: error.message
             });
         }
-
-
-        return res.status(201).json({
-            message: "Transaction successful",
-            transaction
-        });
 
     } catch (error) {
         console.error(error);
